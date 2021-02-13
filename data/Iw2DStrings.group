@@ -1,0 +1,10 @@
+CIwResGroup
+{
+	name Iw2DStrings
+	"Fonts/segoeprint16.gxfont"
+	"Fonts/Kuli_26_white.gxfont"
+	"Fonts/Kuli_26_black.gxfont"
+	"Fonts/Kuli_26_red.gxfont"
+	"Fonts/Kuli_30_black.gxfont"
+	"Fonts/Kuli_30_white.gxfont"
+}

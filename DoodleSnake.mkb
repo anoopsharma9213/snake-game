@@ -1,0 +1,73 @@
+# files specifies all files to build
+files
+{
+    ["src"]
+    (src)
+    main.cpp
+    game.cpp
+    (h)
+    game.h
+}
+
+includepaths
+{
+    h
+	SplashScreen
+}
+
+subprojects
+{
+    iw2d
+}
+
+deployments
+{
+	name="Snake"
+	caption="Doodle Snake"
+	splashscreen = "SplashScreen"
+    splashscreen-use-all = 1
+}
+
+assets
+{
+	(SplashScreen)
+	Splash1.jpg
+	Splash2.jpg
+	Splash3.jpg
+
+    (data)
+	bg.png
+	bg1.png
+	bg2.png
+	bg3.png
+	bg4.png
+	
+	up.png
+	down.png
+	left.png
+	right.png
+	up_p.png
+	down_p.png
+	left_p.png
+	right_p.png
+	
+	sound_on.png
+	sound_off.png
+	score.png
+	settings.png
+	panel.png
+
+	bound1.png
+	bound2.png
+	bound3.png
+	bound4.png
+
+	food.png
+
+	bk_music.mp3
+	bk_music1.mp3
+	bk_music2.mp3
+
+	(data-ram/data-gles1, data)
+    iw2dstrings.group.bin
+}
