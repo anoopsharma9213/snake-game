@@ -1,0 +1,8 @@
+CIwResGroup
+{
+	name Gameplay
+
+	"Design/Snake/head.png"
+	"Design/Snake/body.png"
+	"Design/Snake/food.png"
+}

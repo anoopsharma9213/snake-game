@@ -20,11 +20,17 @@
 PreCompileShaderBinaries=1
 
 [s3e]
-MemSize=20000000
+MemSize0=40000000
+MemSize1=20000000
+
 DispFixRot=Landscape
+MemSizeDebug=70000000
 
 [2D]
 MaxBatch=2000
 
 [GX]
-DataCacheSize=30000
+DataCacheSize=50000
+
+[SOUND]
+MaxChannels=16

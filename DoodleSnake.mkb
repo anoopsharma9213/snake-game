@@ -5,69 +5,54 @@ files
     (src)
     main.cpp
     game.cpp
+	resource.cpp
     (h)
     game.h
+	resource.h
 }
 
 includepaths
 {
     h
 	SplashScreen
+	icon
+}
+
+options
+{
+	module_path="$MARMALADE_ROOT/examples"
 }
 
 subprojects
 {
     iw2d
+	s3eWindowsPhoneAd
+	SoundEngine
 }
 
 deployments
 {
-	name="Snake"
-	caption="Doodle Snake"
-	splashscreen = "SplashScreen"
-    splashscreen-use-all = 1
+	name="Snake Game"
+	caption="Snake Game"
+	
+	icon = "icon"
 }
 
 assets
 {
-	(SplashScreen)
-	Splash1.jpg
-	Splash2.jpg
-	Splash3.jpg
+	(data)
+		Sound
 
-    (data)
-	bg.png
-	bg1.png
-	bg2.png
-	bg3.png
-	bg4.png
-	
-	up.png
-	down.png
-	left.png
-	right.png
-	up_p.png
-	down_p.png
-	left_p.png
-	right_p.png
-	
-	sound_on.png
-	sound_off.png
-	score.png
-	settings.png
-	panel.png
-
-	bound1.png
-	bound2.png
-	bound3.png
-	bound4.png
-
-	food.png
-
-	bk_music.mp3
-	bk_music1.mp3
-	bk_music2.mp3
+	(icon)
+		icon.png
+		icon1.png
+		icon2.png
+		icon3.png
+		icon4.png
 
 	(data-ram/data-gles1, data)
-    iw2dstrings.group.bin
+	Environment.group.bin
+	Gameplay.group.bin
+	Control.group.bin
+    IW2DStrings.group.bin
 }

@@ -1,17 +1,3 @@
-/*
- * This file is part of the Marmalade SDK Code Samples.
- *
- * (C) 2001-2012 Marmalade. All Rights Reserved.
- *
- * This source code is intended only as a supplement to the Marmalade SDK.
- *
- * THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
- * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
- * PARTICULAR PURPOSE.
- */
-#include "s3e.h"
-#include "Iw2D.h"
 #include "game.h"
 
 // updates per second
@@ -32,7 +18,8 @@ int main()
     Iw2DInit();
 
     // create game object
-    CGame* pGame = new CGame;
+	getresource = new Resources();
+	newgame = new CGame();
 
     int currentUpdate = GetUpdateFrame();
     int nextUpdate = currentUpdate;
@@ -57,12 +44,12 @@ int main()
         frames = MIN(MAX_UPDATES, frames);
         while(frames--)
         {
-            pGame->Update();
+			newgame->Update();
         }
         currentUpdate = nextUpdate;
 
         // render the results
-        pGame->Render();
+		newgame->Render();
 
         // if an application uses polling input the application
         // must call update once per frame
@@ -74,7 +61,8 @@ int main()
     }
 
     // clear up game object
-    delete pGame;
+	delete getresource;
+	delete newgame;
 
     Iw2DTerminate();
 

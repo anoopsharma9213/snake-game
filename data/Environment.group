@@ -1,0 +1,17 @@
+CIwResGroup
+{
+	name Environment
+
+	"Design/Background/bg0.jpg"
+	"Design/Background/bg1.jpg"
+	"Design/Background/bg2.jpg"
+	"Design/Background/bg3.jpg"
+	"Design/Background/bg4.jpg"
+	"Design/Background/bg5.jpg"
+	"Design/Background/bg6.jpg"
+	"Design/Background/bg7.jpg"
+	"Design/Background/bg8.jpg"
+	"Design/Background/bg9.jpg"
+
+	"Design/Frame/frame.png"
+}
