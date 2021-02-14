@@ -4,6 +4,8 @@ CGame::CGame()
 {
 
 	_store = new struct save;
+	//_store_ca = new struct save_loc_ca;
+	//_store_cl = new struct save_loc_cl;
 
 	if(s3eSecureStorageGet(_store,sizeof(struct save)) == S3E_RESULT_SUCCESS)
 	{
@@ -11,7 +13,8 @@ CGame::CGame()
 		sound = _store->s;
 		music = _store->m;
 		vibration = _store->v;
-		maze_select = _store->maze;
+		maze_select = _store->maze_cl;
+		maze_select_ca = _store->maze_ca;
 		resume_campiagn = _store->r_ca;
 		resume_classic = _store->r_cl;
 		highscore_ca = _store->h_ca;
@@ -23,6 +26,7 @@ CGame::CGame()
 		sound = 1;
 		music = 1;
 		vibration = 1;
+		maze_select_ca = 0;
 		maze_select = 0;
 		resume_campiagn = 0;
 		resume_classic = 0;
@@ -74,7 +78,6 @@ CGame::CGame()
 
 	wall_rotate = 0;
 	wall_max = 0;
-	wall_init();
 
 	food_init();
 }
@@ -96,7 +99,8 @@ CGame::~CGame()
 	_store->s = sound;
 	_store->m = music;
 	_store->v = vibration;
-	_store->maze = maze_select;
+	_store->maze_cl = maze_select;
+	_store->maze_ca = maze_select_ca;
 	_store->r_ca = resume_campiagn;
 	_store->r_cl = resume_classic;
 	_store->h_ca = highscore_ca;
@@ -105,6 +109,8 @@ CGame::~CGame()
 	s3eSecureStoragePut(_store,sizeof(struct save));
 	s3eAudioStop();
 	delete _store;
+	//delete _store_ca;
+	//delete _store_cl;
 }
 
 void CGame::Update()
@@ -221,8 +227,9 @@ void CGame::initialize()
 	end.x = move.x+row*g_size.x;
 	end.y = move.y+col*g_size.y;
 
-	move.x = (float)((int)(Iw2DGetSurfaceWidth()*0.03f)) + g_size.x;
-	move.y = (float)((int)(Iw2DGetSurfaceHeight()*0.05f)) + g_size.y;
+	//move.x = (float)((int)(Iw2DGetSurfaceWidth()*0.03f)) + g_size.x;
+	//move.y = (float)((int)(Iw2DGetSurfaceHeight()*0.05f)) + g_size.y;
+	move.x = move.y = 1;
 	
 	f_dir = 1;
 	f_step = 0;
@@ -299,9 +306,37 @@ void CGame::reset()
 	}
 }
 
-void CGame::wall_init()
+void CGame::set(int type)
 {
-	switch (maze_select)
+	if(type == 1 )
+	{
+		block = _store->ca_block;
+		move = _store->ca_move;
+		f_dir = _store->ca_f_dir;
+		f_Position = _store->ca_f_pos;
+		for(var=0;var<block;var++)
+		{
+			if(var==0)
+			{
+				b_dir = END = START = new Direction;
+				b_dir->dir = _store->ca_block_dir[var];
+				b_dir->next = NULL;
+			}
+			else
+			{
+				b_dir = new Direction;
+				b_dir->dir = _store->ca_block_dir[var];
+				b_dir->next = NULL;
+				END->next = b_dir;
+				END = b_dir;
+			}
+		}
+	}
+}
+
+void CGame::wall_init(int maze)
+{
+	switch (maze)
 	{
 		case 0:
 			break;

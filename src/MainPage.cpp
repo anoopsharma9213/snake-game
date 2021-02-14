@@ -183,7 +183,6 @@ void CGame::mainPageUpdate()
 				
 				break;
 			case 13:
-				
 				break;
 			case 111:
 				if(resume_campiagn == 1)
@@ -191,14 +190,22 @@ void CGame::mainPageUpdate()
 					if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.25f+menu_button_size.y/2)
 					{
-						page = 1;
-						main_page_delay = 20;
+						page = 2;
+						mode = 1;
+						maze_count = maze_select_ca;
+						wall_max = 0;
+						wall_init(maze_count);
+						set(1);
 					}
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.50f+menu_button_size.y/2)
 					{
 						page = 2;
-						main_page_delay = 20;
+						mode = 1;
+						reset();
+						maze_count = maze_select_ca = 0;
+						wall_max = 0;
+						wall_init(maze_count);
 					}
 					/*else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.75f+menu_button_size.y/2)
@@ -213,7 +220,11 @@ void CGame::mainPageUpdate()
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*1/3-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*1/3+menu_button_size.y/2)
 					{
 						page = 2;
-						main_page_delay = 20;
+						mode = 1;
+						reset();
+						maze_count = maze_select_ca = 0;
+						wall_max = 0;
+						wall_init(maze_count);
 					}
 					/*else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*2/3-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*2/3+menu_button_size.y/2)
@@ -229,14 +240,21 @@ void CGame::mainPageUpdate()
 					if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*1/5-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*1/5+menu_button_size.y/2)
 					{
-						page = 1;
-						main_page_delay = 20;
+						page = 2;
+						mode = 2;
+						maze_count = maze_select;
+						wall_max = 0;
+						wall_init(maze_count);
 					}
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*2/5-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*2/5+menu_button_size.y/2)
 					{
 						page = 2;
-						main_page_delay = 20;
+						mode = 2;
+						reset();
+						maze_count = maze_select;
+						wall_max = 0;
+						wall_init(maze_count);
 					}
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*3/5+menu_button_size.y/2)
@@ -255,6 +273,8 @@ void CGame::mainPageUpdate()
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*4/5-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*4/5+menu_button_size.y/2)
 					{
 						page = 1124;
+						trans_pos = (float)Iw2DGetSurfaceWidth();
+						slide_select_curr = maze_select;
 						menu_trans = 1;
 						trans_dir = -1;
 					}
@@ -265,7 +285,11 @@ void CGame::mainPageUpdate()
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.25f+menu_button_size.y/2)
 					{
 						page = 2;
-						main_page_delay = 20;
+						mode = 2;
+						reset();
+						maze_count = maze_select;
+						wall_max = 0;
+						wall_init(maze_count);
 					}
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.50f+menu_button_size.y/2)
@@ -344,8 +368,7 @@ void CGame::mainPageUpdate()
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.20f && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.80f)
 					{
 						maze_select = slide_select_curr;
-						wall_max = 0;
-						wall_init();
+						resume_classic = 0;
 					}
 				}
 				break;
@@ -523,10 +546,8 @@ void CGame::mainPage()
 			{
 				Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*1/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
 				Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*2/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,192),CIwFVec2(325,96));
-				//Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
+				Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
 				Iw2DSetColour(0xffffffff);
-				Iw2DDrawString("LEVEL",CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*3/5-((float)getresource->get_font()->GetHeight())/2),CIwFVec2(menu_button_size.x/2,(float)getresource->get_font()->GetHeight()),IW_2D_FONT_ALIGN_CENTRE,IW_2D_FONT_ALIGN_CENTRE);
-				Iw2DSetColour(0xaaffffff);
 				switch (level_cl)
 				{
 					case 1:
@@ -539,31 +560,29 @@ void CGame::mainPage()
 						Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(200,0),CIwFVec2(100,100));
 						break;
 				}
+				Iw2DSetColour(0xaaffffff);
 				Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*4/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,288),CIwFVec2(325,96));
 			}
 			else
 			{
 				Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,192),CIwFVec2(325,96));
-				
-				/*Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
-				Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(0,0),CIwFVec2(100,100));*/
-				
+				Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
 				Iw2DSetColour(0xffffffff);
-				Iw2DDrawString("LEVEL",CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*0.50f-((float)getresource->get_font()->GetHeight())/2),CIwFVec2(menu_button_size.x/2,(float)getresource->get_font()->GetHeight()),IW_2D_FONT_ALIGN_CENTRE,IW_2D_FONT_ALIGN_CENTRE);
-				Iw2DSetColour(0xaaffffff);
+				
 				switch (level_cl)
 				{
 					case 1:
-						Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(0,0),CIwFVec2(100,100));
+						Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2-menu_button_size.y,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(0,0),CIwFVec2(100,100));
 						break;
 					case 2:
-						Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(100,0),CIwFVec2(100,100));
+						Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(100,0),CIwFVec2(100,100));
 						break;
 					case 3:
-						Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(200,0),CIwFVec2(100,100));
+						Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(200,0),CIwFVec2(100,100));
 						break;
 				}
 
+				Iw2DSetColour(0xaaffffff);
 				Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,288),CIwFVec2(325,96));
 			}
 			Iw2DSetColour(0xffffffff);
@@ -739,19 +758,7 @@ void CGame::mainPage()
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*3/5+menu_button_size.y/2)
 					{
-						switch (level_cl)
-						{
-							case 1:
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(0,0),CIwFVec2(100,100));
-								break;
-							case 2:
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(100,0),CIwFVec2(100,100));
-								break;
-							case 3:
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(200,0),CIwFVec2(100,100));
-								break;
-						}
-						//Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
 					}
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*4/5-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*4/5+menu_button_size.y/2)
@@ -769,19 +776,7 @@ void CGame::mainPage()
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.50f+menu_button_size.y/2)
 					{
-						//Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
-						switch (level_cl)
-						{
-							case 1:
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(0,0),CIwFVec2(100,100));
-								break;
-							case 2:
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(100,0),CIwFVec2(100,100));
-								break;
-							case 3:
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y),CIwFVec2(200,0),CIwFVec2(100,100));
-								break;
-						}
+						Iw2DDrawImageRegion(getresource->get_menu_buttons(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
 					}
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.75f+menu_button_size.y/2)
@@ -1376,18 +1371,18 @@ void CGame::menu_trans_draw()
 						{
 							case 1:
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(200,0),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(0,50),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(200,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(0,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(200,50),CIwFVec2(100,50));
 								break;
 							case 2:	
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(0,0),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(100,50),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(0,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(100,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(0,50),CIwFVec2(100,50));
 								break;
 							case 3:
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(100,0),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(200,50),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(100,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(200,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(100,50),CIwFVec2(100,50));
 								break;
 						}
 					}
@@ -1397,18 +1392,18 @@ void CGame::menu_trans_draw()
 						{
 							case 1:
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(200,0),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(0,50),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(200,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(0,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(200,50),CIwFVec2(100,50));
 								break;
 							case 2:	
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(0,0),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(100,50),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(0,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(100,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(0,50),CIwFVec2(100,50));
 								break;
 							case 3:
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(100,0),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(200,50),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(100,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(200,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*0.50f),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(100,50),CIwFVec2(100,50));
 								break;
 						}
 					}
@@ -1429,17 +1424,17 @@ void CGame::menu_trans_draw()
 							case 1:
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(200,0),CIwFVec2(100,50));
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-trans_pos),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(0,0),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(0,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(0,50),CIwFVec2(100,50));
 								break;
 							case 2:
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(0,0),CIwFVec2(100,50));
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-trans_pos),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(100,0),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(100,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(100,50),CIwFVec2(100,50));
 								break;
 							case 3:
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(100,0),CIwFVec2(100,50));
 								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5-trans_pos),CIwFVec2(menu_button_size.y,trans_pos),CIwFVec2(200,0),CIwFVec2(100,50));
-								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(200,50),CIwFVec2(100,50));
+								Iw2DDrawImageRegion(getresource->get_level(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x*0.25f-menu_button_size.y/2,(float)Iw2DGetSurfaceHeight()*3/5),CIwFVec2(menu_button_size.y,menu_button_size.y/2),CIwFVec2(200,50),CIwFVec2(100,50));
 								break;
 						}
 					}

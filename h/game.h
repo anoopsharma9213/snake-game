@@ -11,23 +11,37 @@ private:
 	char print[50];
 	struct save
 	{
-		int s, m, v, c, maze, r_ca, r_cl;
+		int s, m, v, c, maze_ca, maze_cl, r_ca, r_cl;
 		int h_ca, l_cl;
-
+		CIwFVec2 ca_move, ca_f_pos;
+		int ca_f_dir, ca_block , ca_block_dir[100];
 		/*float star,score,cstar;
 		int m, sc, mw;
 		int sc_l[6], pt[4], a[10];*/
 	}*_store;
-	
-	//-----------------Interface------------------------
-	int page;
 
-	//-----------------------GamePlay----------------
 	typedef struct node
 	{
 		int dir;
 		struct node *next;
 	}Direction;
+
+	/*struct save_loc_ca
+	{
+		
+
+	}*_store_ca;
+
+	struct save_loc_cl
+	{
+		CIwFVec2 cl_move, cl_f_pos;
+		int cl_f_dir, cl_block, cl_block_dir[100];
+	}*_store_cl;*/
+	
+	//-----------------Interface------------------------
+	int page;
+
+	//-----------------------GamePlay----------------
 
 	Direction *START, *END, *b_dir;
 	CIwFVec2 beg, g_size, b_size, move, a_move, end, temp;
@@ -41,7 +55,7 @@ private:
 	int b_select, var, flag, block, c, over;//, sound_stat, track, level, plank;
 	
 	int resume_campiagn, resume_classic, g_speed;
-	int highscore_ca, level_cl;
+	int highscore_ca, level_cl, mode;
 	
 	//---------------------Control----------------
 	CIwFVec2 k_pos, k_size, k_point, k_drag;
@@ -49,6 +63,7 @@ private:
 	float trans_pos;
 	CIwFMat2D rot;
 	CIwFVec2 menu_button_size, control_button_size, control_button_pos;
+	int maze_count, maze_select_ca;
 	int maze_select, slide_select_curr, slide_select_next;
 	bool isslide;
 	int slide_start_time, slide_stop_start;
@@ -82,7 +97,7 @@ public:
 	void play_Page();
 	void play_Page_Update();
 
-	void wall_init();
+	void wall_init(int);
 	void food_init();
 
 	//---------------------Tutorial----------------------------
@@ -95,6 +110,7 @@ public:
 	//---------------------------------Extra-------------------------------
 
 	void reset();
+	void set(int);
 };
 
 extern CGame *newgame;
