@@ -37,7 +37,7 @@ private:
 	CIwFVec2 w_position[500];
 	int wall_max, wall_rotate;
 	
-	int b_select, i, flag, block, c, over;//, sound_stat, track, level, plank;
+	int b_select, var, flag, block, c, over;//, sound_stat, track, level, plank;
 	
 	int resume_campiagn, resume_classic, g_speed;
 	
@@ -81,6 +81,7 @@ public:
 	void play_Page_Update();
 
 	void wall_init();
+	void food_init();
 
 	//---------------------Tutorial----------------------------
 	void tutorial();

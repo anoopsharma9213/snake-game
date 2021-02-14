@@ -21,7 +21,7 @@ Resources::Resources()
 	bg[6] = Iw2DCreateImageResource("bg6");
 	bg[7] = Iw2DCreateImageResource("bg7");
 	bg[8] = Iw2DCreateImageResource("bg8");
-	bg[9] = Iw2DCreateImageResource("bg9");
+	//bg[9] = Iw2DCreateImageResource("bg9");
 	menu_bg = Iw2DCreateImageResource("menu_bg");
 	control_bg = Iw2DCreateImageResource("control_bg");
 	select_bg = Iw2DCreateImageResource("select_bg");
@@ -60,7 +60,7 @@ Resources::Resources()
 
 Resources::~Resources()
 {
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 9; i++)
 	{
 		delete bg[i];
 	}

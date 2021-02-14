@@ -12,7 +12,7 @@ class Resources
 {
 private:
 
-	CIw2DImage *bg[10];
+	CIw2DImage *bg[9];
 	CIw2DImage *menu_bg;
 	CIw2DImage *control_bg;
 	CIw2DImage *select_bg;

@@ -71,13 +71,15 @@ CGame::CGame()
 	wall_rotate = 0;
 	wall_max = 0;
 	wall_init();
+
+	food_init();
 }
 
 CGame::~CGame()
 {
 	if(START!=NULL)
 	{
-		for(i=0;i<block;i++)
+		for(var=0;var<block;var++)
 		{
 			b_dir = START;
 			START = START->next;
@@ -101,7 +103,7 @@ CGame::~CGame()
 
 void CGame::Update()
 {
-	if(s3eDeviceGetInt(S3E_DEVICE_OS)==S3E_OS_ID_WP8)
+	if(s3eDeviceGetInt(S3E_DEVICE_OS)==S3E_OS_ID_WP8 && music > 1)
 	{
 		switch (m_tem[0])
 		{
@@ -198,8 +200,8 @@ void CGame::initialize()
 	length = (float)((int)(Iw2DGetSurfaceWidth()*0.94f));
 	breadth = b_size.y;
 		
-	g_size.x = (float)((int)(breadth*0.05f));
-	g_size.y = (float)((int)(breadth*0.05f));
+	g_size.x = (float)((int)(breadth*0.0525f));
+	g_size.y = (float)((int)(breadth*0.0525f));
 
 	row = (int)(length/g_size.x);
 	col = (int)(breadth/g_size.y);
@@ -214,9 +216,10 @@ void CGame::initialize()
 
 	end.x = move.x+row*g_size.x;
 	end.y = move.y+col*g_size.y;
-		
-	f_Position.x = (float)(rand()%(int)(length/g_size.x));
-	f_Position.y = (float)(rand()%(int)(breadth/g_size.y));
+
+	move.x = (float)((int)(Iw2DGetSurfaceWidth()*0.03f)) + g_size.x;
+	move.y = (float)((int)(Iw2DGetSurfaceHeight()*0.05f)) + g_size.y;
+	
 	f_dir = 1;
 	f_step = 0;
 	f_Size = g_size;
@@ -224,12 +227,12 @@ void CGame::initialize()
 	_score = 0;
 	b_select = 0;
 	c=0;
-	block = 5;
+	block = 4;
 	over = 0;
 
-	for(i=0;i<block;i++)
+	for(var=0;var<block;var++)
 	{
-		if(i==0)
+		if(var==0)
 		{
 			b_dir = END = START = new Direction;
 			b_dir->dir = 1;
@@ -580,7 +583,7 @@ void CGame::mainPageUpdate()
 						}
 						else
 						{
-							if(slide_select_curr < 9)
+							if(slide_select_curr < 8)
 							{
 								isslide = true;
 								slide_select_next = slide_select_curr+1;
@@ -596,6 +599,8 @@ void CGame::mainPageUpdate()
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.20f && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.80f)
 					{
 						maze_select = slide_select_curr;
+						wall_max = 0;
+						wall_init();
 					}
 				}
 				break;
@@ -791,10 +796,10 @@ void CGame::mainPage()
 						Iw2DDrawImage(getresource->get_bg(1),CIwFVec2(Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
 	
 						break;
-					case 9:
+					case 8:
 	
-						Iw2DDrawImage(getresource->get_bg(8),CIwFVec2(-Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
-						Iw2DDrawImage(getresource->get_bg(9),CIwFVec2(Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+						Iw2DDrawImage(getresource->get_bg(7),CIwFVec2(-Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+						Iw2DDrawImage(getresource->get_bg(8),CIwFVec2(Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
 	
 						break;
 					default:
@@ -824,7 +829,7 @@ void CGame::mainPage()
 				}
 				Iw2DDrawImage(getresource->get_bg(slide_select_next),slide_transition_position,CIwFVec2(slide_transition,slide_transition*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth())));
 				Iw2DDrawImage(getresource->get_bg(slide_select_next+1),slide_transition_position_curr,CIwFVec2(slide_transition_curr,slide_transition_curr*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth())));
-				if(slide_select_next+2 <= 9 && Iw2DGetSurfaceWidth()*0.55f+slide_transition <= Iw2DGetSurfaceWidth())
+				if(slide_select_next+2 <= 8 && Iw2DGetSurfaceWidth()*0.55f+slide_transition <= Iw2DGetSurfaceWidth())
 				{
 					Iw2DDrawImage(getresource->get_bg(slide_select_next+2),CIwFVec2(Iw2DGetSurfaceWidth()*0.55f+slide_transition,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
 				}
@@ -855,7 +860,7 @@ void CGame::mainPage()
 				{
 					Iw2DDrawImage(getresource->get_bg(slide_select_next-2),CIwFVec2(Iw2DGetSurfaceWidth()*0.15f-slide_transition,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
 				}
-				if(slide_select_next+1 <= 9)
+				if(slide_select_next+1 <= 8)
 				{
 					Iw2DDrawImage(getresource->get_bg(slide_select_next+1),CIwFVec2(Iw2DGetSurfaceWidth()*1.45f - slide_transition,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
 				}
@@ -1367,10 +1372,10 @@ void CGame::menu_trans_draw()
 							Iw2DDrawImage(getresource->get_bg(1),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
 		
 							break;
-						case 9:
+						case 8:
 		
-							Iw2DDrawImage(getresource->get_bg(8),CIwFVec2(trans_pos - Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
-							Iw2DDrawImage(getresource->get_bg(9),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+							Iw2DDrawImage(getresource->get_bg(7),CIwFVec2(trans_pos - Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+							Iw2DDrawImage(getresource->get_bg(8),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
 		
 							break;
 						default:
@@ -1724,10 +1729,10 @@ void CGame::menu_trans_draw()
 							Iw2DDrawImage(getresource->get_bg(1),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
 		
 							break;
-						case 9:
+						case 8:
 		
-							Iw2DDrawImage(getresource->get_bg(8),CIwFVec2(trans_pos - Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
-							Iw2DDrawImage(getresource->get_bg(9),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+							Iw2DDrawImage(getresource->get_bg(7),CIwFVec2(trans_pos - Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+							Iw2DDrawImage(getresource->get_bg(8),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
 		
 							break;
 						default:
@@ -1798,12 +1803,15 @@ void CGame::menu_trans_draw()
 
 void CGame::play_Page_Update()
 {
-	if(s3eKeyboardGetState(s3eKeyBack) & S3E_KEY_STATE_PRESSED)
+	if((s3eKeyboardGetState(s3eKeyBack) | s3eKeyboardGetState(s3eKeyEsc)) & S3E_KEY_STATE_PRESSED)
 	{
-		page = 1;
 		if(over == 1)
 		{
 			reset();
+		}
+		else
+		{
+			page = 1;
 		}
 		s3eKeyboardClearState();
 	}
@@ -2051,7 +2059,7 @@ void CGame::play_Page_Update()
 
 	
 
-	if(c%15 == 0)
+	if(c%15 == 0 && over == 0)
 		{
 			c++;
 			if (b_select!=0)
@@ -2075,7 +2083,7 @@ void CGame::play_Page_Update()
 			}
 
 			temp = move;
-			for(i=1, b_dir = START; i<block-1; i++,b_dir=b_dir->next)
+			for(var=1, b_dir = START; var<block-1; var++,b_dir=b_dir->next)
 			{
 				if(((int)a_move.x==(int)temp.x) & ((int)a_move.y == (int)temp.y))
 				{
@@ -2109,6 +2117,18 @@ void CGame::play_Page_Update()
 				else if(temp.y<beg.y+b_size.x)
 					temp.y = end.y-g_size.y;
 			}
+			for (int i = 0; i < wall_max; i++)
+				{
+					if(((int)a_move.x==(int)(beg.x+b_size.x+w_position[i].x*g_size.x)) & ((int)a_move.y == (int)(beg.y+b_size.x+w_position[i].y*g_size.y)))
+					{
+						over = 1;
+						if(s3eVibraGetInt(S3E_VIBRA_AVAILABLE) == 1)
+						{
+							s3eVibraVibrate(255,500);
+						}
+						break;
+					}
+				}
 			if(over == 0)
 			{	
 				switch(START->dir)
@@ -2134,7 +2154,7 @@ void CGame::play_Page_Update()
 						else move.y = end.y-g_size.y;;
 						break;
 				}
-				for(i=0, b_dir = START;i<block-1;i++,b_dir=b_dir->next)
+				for(var=0, b_dir = START;var<block-1;var++,b_dir=b_dir->next)
 				{
 					b_dir->dir = b_dir->next->dir;
 				}
@@ -2142,51 +2162,7 @@ void CGame::play_Page_Update()
 				{
 					block++;
 					_score+=10;
-					flag = 0;
-					do
-					{
-						f_Position.x = (float)(rand()%(int)(length/g_size.x));
-						f_Position.y = (float)(rand()%(int)(breadth/g_size.y));
-						temp = move;
-						for(i=1, b_dir = START; i<block; i++,b_dir=b_dir->next)
-						{
-							if(b_dir->dir==1)
-							{
-								temp.x += g_size.x;
-							}
-							else if(b_dir->dir==-1)
-							{
-								temp.x -= g_size.x;
-							}
-							else if(b_dir->dir==2)
-							{
-								temp.y += g_size.y;
-							}
-							else
-							{
-								temp.y -= g_size.y;
-							}
-						
-							if(temp.x>=end.x)
-								temp.x = beg.x+b_size.x;
-							else if(temp.x<beg.x+b_size.x)
-								temp.x = end.x-g_size.x;
-							if(temp.y>=end.y)
-								temp.y = beg.y+b_size.x;
-							else if(temp.y<beg.y+b_size.x)
-								temp.y = end.y-g_size.y;
-
-							if(((int)temp.x==(int)(beg.x+b_size.x+f_Position.x*g_size.x)) & ((int)temp.y == (int)(beg.y+b_size.x+f_Position.y*g_size.y)))
-							{
-								flag = 0;
-								break;
-							}
-							else
-							{
-								flag = 1;
-							}
-						}
-					}while(flag==0);
+					food_init();
 
 					b_dir = new Direction;
 					b_dir->dir = END->dir;
@@ -2202,9 +2178,107 @@ void CGame::play_Page_Update()
 						switch (f_dir)
 						{
 							case 1:
+								if(maze_select != 0)
+								{
+									for (int i = 0; i < wall_max; i++)
+									{
+										if(((int)(beg.x+b_size.x+w_position[i].x*g_size.x)==(int)(beg.x+b_size.x+f_Position.x*g_size.x + g_size.x)) & ((int)(beg.x+b_size.x+w_position[i].y*g_size.x) == (int)(beg.y+b_size.x+f_Position.y*g_size.y)))
+										{
+											if(rand()%100 > 50)
+											{
+												f_dir = 2;
+											}
+											else
+											{
+												f_dir = -2;
+											}
+										}
+									}
+								}
+								break;
+							case -1:
+								if(maze_select != 0)
+								{
+									for (int i = 0; i < wall_max; i++)
+									{
+										if(((int)(beg.x+b_size.x+w_position[i].x*g_size.x)==(int)(beg.x+b_size.x+f_Position.x*g_size.x - g_size.x)) & ((int)(beg.x+b_size.x+w_position[i].y*g_size.x) == (int)(beg.y+b_size.x+f_Position.y*g_size.y)))
+										{
+											if(rand()%100 > 50)
+											{
+												f_dir = 2;
+											}
+											else
+											{
+												f_dir = -2;
+											}
+										}
+									}
+								}
+								break;
+							case 2:
+								if(maze_select != 0)
+								{
+									for (int i = 0; i < wall_max; i++)
+									{
+										if(((int)(beg.x+b_size.x+w_position[i].x*g_size.x)==(int)(beg.x+b_size.x+f_Position.x*g_size.x)) & ((int)(beg.x+b_size.x+w_position[i].y*g_size.x) == (int)(beg.y+b_size.x+f_Position.y*g_size.y + g_size.y)))
+										{
+											if(rand()%100 > 50)
+											{
+												f_dir = 1;
+											}
+											else
+											{
+												f_dir = -1;
+											}
+										}
+									}
+								}
+								break;
+							case -2:
+								if(maze_select != 0)
+								{
+									for (int i = 0; i < wall_max; i++)
+									{
+										if(((int)(beg.x+b_size.x+w_position[i].x*g_size.x)==(int)(beg.x+b_size.x+f_Position.x*g_size.x)) & ((int)(beg.x+b_size.x+w_position[i].y*g_size.x) == (int)(beg.y+b_size.x+f_Position.y*g_size.y - g_size.y)))
+										{
+											if(rand()%100 > 50)
+											{
+												f_dir = 1;
+											}
+											else
+											{
+												f_dir = -1;
+											}
+										}
+									}
+								}
+								break;
+						}
+
+						switch (f_dir)
+						{
+							case 1:
 								f_Position.x ++;
 								if(f_Position.x >= row)
 									f_Position.x = 0;
+								/*if(maze_select != 0)
+								{
+									for (int i = 0; i < wall_max; i++)
+									{
+										if(((int)(beg.x+b_size.x+w_position[i].x*g_size.x)==(int)(beg.x+b_size.x+f_Position.x*g_size.x + g_size.x)) & ((int)(beg.x+b_size.x+w_position[i].y*g_size.x) == (int)(beg.y+b_size.x+f_Position.y*g_size.y)))
+										{
+											if(rand()%100 > 50)
+											{
+												f_dir = 2;
+											}
+											else
+											{
+												f_dir = -2;
+											}
+										}
+									}
+								}
+								*/
 								if(f_step > 10)
 								{
 									if(rand()%100 > 60)
@@ -2222,6 +2296,23 @@ void CGame::play_Page_Update()
 								f_Position.x --;
 								if(f_Position.x < 0)
 									f_Position.x = (float)row-1;
+								/*if(maze_select != 0)
+								{
+									for (int i = 0; i < wall_max; i++)
+									{
+										if(((int)(beg.x+b_size.x+w_position[i].x*g_size.x)==(int)(beg.x+b_size.x+f_Position.x*g_size.x - g_size.x)) & ((int)(beg.x+b_size.x+w_position[i].y*g_size.x) == (int)(beg.y+b_size.x+f_Position.y*g_size.y)))
+										{
+											if(rand()%100 > 50)
+											{
+												f_dir = 2;
+											}
+											else
+											{
+												f_dir = -2;
+											}
+										}
+									}
+								}*/
 								if(f_step > 10)
 								{
 									if(rand()%100 > 60)
@@ -2239,6 +2330,23 @@ void CGame::play_Page_Update()
 								f_Position.y ++;
 								if(f_Position.y >= col)
 									f_Position.y = 0;
+								/*if(maze_select != 0)
+								{
+									for (int i = 0; i < wall_max; i++)
+									{
+										if(((int)(beg.x+b_size.x+w_position[i].x*g_size.x)==(int)(beg.x+b_size.x+f_Position.x*g_size.x)) & ((int)(beg.x+b_size.x+w_position[i].y*g_size.x) == (int)(beg.y+b_size.x+f_Position.y*g_size.y + g_size.y)))
+										{
+											if(rand()%100 > 50)
+											{
+												f_dir = 1;
+											}
+											else
+											{
+												f_dir = -1;
+											}
+										}
+									}
+								}*/
 								if(f_step > 10)
 								{
 									if(rand()%100 > 60)
@@ -2256,6 +2364,23 @@ void CGame::play_Page_Update()
 								f_Position.y --;
 								if(f_Position.y < 0)
 									f_Position.y = (float)col-1;
+								/*if(maze_select != 0)
+								{
+									for (int i = 0; i < wall_max; i++)
+									{
+										if(((int)(beg.x+b_size.x+w_position[i].x*g_size.x)==(int)(beg.x+b_size.x+f_Position.x*g_size.x)) & ((int)(beg.x+b_size.x+w_position[i].y*g_size.x) == (int)(beg.y+b_size.x+f_Position.y*g_size.y - g_size.y)))
+										{
+											if(rand()%100 > 50)
+											{
+												f_dir = 1;
+											}
+											else
+											{
+												f_dir = -1;
+											}
+										}
+									}
+								}*/
 								if(f_step > 10)
 								{
 									if(rand()%100 > 60)
@@ -2294,7 +2419,7 @@ void CGame::play_Page()
 
 	Iw2DDrawImage(getresource->get_bg(maze_select),CIwFVec2(0,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),(float)Iw2DGetSurfaceHeight()));
 	Iw2DSetColour(0x77000000);
-	//Iw2DDrawImage(getresource->get_frame(),CIwFVec2(beg.x+b_size.x,beg.y+b_size.x),CIwFVec2(length,breadth));
+	Iw2DDrawImage(getresource->get_frame(),CIwFVec2(beg.x+b_size.x,beg.y+b_size.x),CIwFVec2(length,breadth));
 	Iw2DSetColour(0xffffffff);
 
 	switch (control_select)
@@ -2461,7 +2586,7 @@ void CGame::play_Page()
 		Iw2DSetTransformMatrix(CIwFMat2D::g_Identity);
 	}
 
-	wall_rotate++;
+	//wall_rotate++;
 	if (wall_rotate == 8)
 	{
 		wall_rotate = 0;
@@ -2505,7 +2630,7 @@ void CGame::play_Page()
 	a_move = move;
 	Iw2DDrawImageRegion(getresource->get_body(),a_move,g_size,CIwFVec2(0,0),CIwFVec2(30,30));
 
-	for(i=1, b_dir = START; i<block; i++,b_dir=b_dir->next)
+	for(var=1, b_dir = START; var<block; var++,b_dir=b_dir->next)
 	{
 		if(b_dir->dir==1)
 		{
@@ -2532,7 +2657,7 @@ void CGame::play_Page()
 			a_move.y = beg.y+b_size.x;
 		else if(a_move.y<beg.y+b_size.x)
 			a_move.y = end.y-g_size.y;
-					if(i==block-1)
+		if(var==block-1)
 		{
 			switch (b_dir->dir)
 			{
@@ -2703,7 +2828,7 @@ void CGame::tutorial_update()
 		}
 		
 		temp = move;
-		for(i=1, b_dir = START; i<block-1; i++,b_dir=b_dir->next)
+		for(var=1, b_dir = START; var<block-1; var++,b_dir=b_dir->next)
 		{
 			if(((int)a_move.x==(int)temp.x) & ((int)a_move.y == (int)temp.y))
 			{
@@ -2762,7 +2887,7 @@ void CGame::tutorial_update()
 				break;
 		}
 	
-		for(i=0, b_dir = START;i<block-1;i++,b_dir=b_dir->next)
+		for(var=0, b_dir = START;var<block-1;var++,b_dir=b_dir->next)
 		{
 			b_dir->dir = b_dir->next->dir;
 		}
@@ -2830,7 +2955,7 @@ void CGame::tutorial()
 
 	a_move = move;
 	Iw2DDrawImageRegion(getresource->get_body(),a_move,g_size,CIwFVec2(0,0),CIwFVec2(30,30));
-	for(i=1, b_dir = START; i<block; i++,b_dir=b_dir->next)
+	for(var=1, b_dir = START; var<block; var++,b_dir=b_dir->next)
 	{
 		if(b_dir->dir==1)
 		{
@@ -2858,7 +2983,7 @@ void CGame::tutorial()
 		else if(a_move.y<beg.y+b_size.x)
 			a_move.y = end.y-g_size.y;
 		
-		if(i==block-1)
+		if(var==block-1)
 		{
 			switch (b_dir->dir)
 			{
@@ -2930,18 +3055,18 @@ void CGame::tutorial()
 
 void CGame::reset()
 {
-	move.x = (float)((int)(Iw2DGetSurfaceWidth()*0.03f));
-	move.y = (float)((int)(Iw2DGetSurfaceHeight()*0.05f));
+	move.x = (float)((int)(Iw2DGetSurfaceWidth()*0.03f)) + g_size.x;
+	move.y = (float)((int)(Iw2DGetSurfaceHeight()*0.05f)) + g_size.y;
+	a_move = CIwFVec2(0,0);
 
-	f_Position.x = (float)(rand()%(int)(length/g_size.x));
-	f_Position.y = (float)(rand()%(int)(breadth/g_size.y));
+	food_init();
 
 	b_select = 0;
 	c=0;
 	over = 0;
 	_score = 0;
 	
-	for(i=0;i<block;i++)
+	for(var=0;var<block;var++)
 	{
 		b_dir = START;
 		START = START->next;
@@ -2949,11 +3074,11 @@ void CGame::reset()
 	}
 	delete START;
 	
-	block = 5;
+	block = 4;
 
-	for(i=0;i<block;i++)
+	for(var=0;var<block;var++)
 	{
-		if(i==0)
+		if(var==0)
 		{
 			b_dir = END = START = new Direction;
 			b_dir->dir = 1;
@@ -2975,30 +3100,478 @@ void CGame::wall_init()
 	switch (maze_select)
 	{
 		case 0:
+			break;
+		case 1:
 			for (int i = 0; i < row; i++)
 			{
-				w_position[i].x = i;
+				w_position[i].x = (float)i;
 				wall_max++;
-				w_position[row+i].x = i;
+				w_position[row+i].x = (float)i;
 				wall_max++;
 				w_position[i].y = 0;
-				w_position[row+i].y = col-1;
+				w_position[row+i].y = (float)(col-1);
 			}
 			for (int i = 1; i < col-1; i++)
 			{
 				w_position[wall_max].x = 0;
-				w_position[wall_max].y = i;
+				w_position[wall_max].y = (float)i;
 				wall_max++;
 			}
 			for (int i = 1; i < col-1; i++)
 			{
-				w_position[wall_max].x = row-1;
-				w_position[wall_max].y = i;
+				w_position[wall_max].x = (float)(row-1);
+				w_position[wall_max].y = (float)i;
 				wall_max++;
 			}
-
+			break;
+		case 2:
+			for (int i = 0; i < row/2-1; i++)
+			{
+				w_position[i].x = (float)i;
+				w_position[i].y = 0;
+				wall_max++;
+			}
+			for (int i = 0; i < row/2-1; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col-1);
+				wall_max++;
+			}
+			for (int i = row/2+2; i < row; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = 0;
+				wall_max++;
+			}
+			for (int i = row/2+2; i < row; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col-1);
+				wall_max++;
+			}
+			for (int i = 1; i < col/2-1; i++)
+			{
+				w_position[wall_max].x = 0;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 1; i < col/2-1; i++)
+			{
+				w_position[wall_max].x = (float)(row-1);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = col/2+2; i < col-1; i++)
+			{
+				w_position[wall_max].x = 0;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = col/2+2; i < col-1; i++)
+			{
+				w_position[wall_max].x = (float)(row-1);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			break;
+		case 3:
+			for (int i = 5; i < row/2-1; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = 5;
+				wall_max++;
+			}
+			for (int i = 5; i < row/2-1; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col-6);
+				wall_max++;
+			}
+			for (int i = row/2+2; i < row-5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = 5;
+				wall_max++;
+			}
+			for (int i = row/2+2; i < row-5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col-6);
+				wall_max++;
+			}
+			for (int i = 5; i < col/2-1; i++)
+			{
+				w_position[wall_max].x = 5;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = col/2+2; i < col-6; i++)
+			{
+				w_position[wall_max].x = 5;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 5; i < col/2-1; i++)
+			{
+				w_position[wall_max].x = (float)(row-6);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = col/2+2; i < col-6; i++)
+			{
+				w_position[wall_max].x = (float)(row-6);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 5; i < row-5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = 0;
+				wall_max++;
+			}
+			for (int i = 5; i < row-5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col-1);
+				wall_max++;
+			}
+			for (int i = 5; i < col-5; i++)
+			{
+				w_position[wall_max].x = 0;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 5; i < col-5; i++)
+			{
+				w_position[wall_max].x = (float)(row-1);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			break;
+		case 4:
+			for (int i = 0; i < row; i++)
+			{
+				w_position[i].x = (float)i;
+				wall_max++;
+				w_position[row+i].x = (float)i;
+				wall_max++;
+				w_position[i].y = 0;
+				w_position[row+i].y = (float)(col-1);
+			}
+			for (int i = 1; i < col/2-1; i++)
+			{
+				w_position[wall_max].x = 0;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 1; i < col/2-1; i++)
+			{
+				w_position[wall_max].x = (float)(row-1);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = col/2+2; i < col-1; i++)
+			{
+				w_position[wall_max].x = 0;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = col/2+2; i < col-1; i++)
+			{
+				w_position[wall_max].x = (float)(row-1);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 5; i < col-5; i++)
+			{
+				w_position[wall_max].x = 5;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 5; i < col-5; i++)
+			{
+				w_position[wall_max].x = (float)(row-6);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 5; i < row/2-1; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col/2);
+				wall_max++;
+			}
+			for (int i = row/2+1; i < row-5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col/2);
+				wall_max++;
+			}
+			break;
+		case 5:
+			for (int i = 0; i < row/2-1; i++)
+			{
+				w_position[i].x = (float)i;
+				w_position[i].y = 0;
+				wall_max++;
+			}
+			for (int i = 0; i < row/2-1; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col-1);
+				wall_max++;
+			}
+			for (int i = row/2+2; i < row; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = 0;
+				wall_max++;
+			}
+			for (int i = row/2+2; i < row; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col-1);
+				wall_max++;
+			}
+			for (int i = 1; i < col/2-1; i++)
+			{
+				w_position[wall_max].x = 0;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 1; i < col/2-1; i++)
+			{
+				w_position[wall_max].x = (float)(row-1);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = col/2+2; i < col-1; i++)
+			{
+				w_position[wall_max].x = 0;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = col/2+2; i < col-1; i++)
+			{
+				w_position[wall_max].x = (float)(row-1);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 5; i < row-5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = 5;
+				wall_max++;
+			}
+			for (int i = 5; i < row-5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col-6);
+				wall_max++;
+			}
+			for (int i = 5; i < col-5; i++)
+			{
+				w_position[wall_max].x = (float)(row/2);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			break;
+		case 6:
+			for (int i = 0; i < row/2; i++)
+			{
+				w_position[i].x = (float)i;
+				w_position[i].y = 0;
+				wall_max++;
+			}
+			for (int i = row/2+1; i < row; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col-1);
+				wall_max++;
+			}
+			for (int i = 1; i < col/2; i++)
+			{
+				w_position[wall_max].x = 0;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = col/2+1; i < col-1; i++)
+			{
+				w_position[wall_max].x = (float)(row-1);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 5; i <row/2 ; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col-6);
+				wall_max++;
+			}
+			for (int i = row/2+1; i < row-5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = 5;
+				wall_max++;
+			}
+			for (int i = col/2+1; i < col-6; i++)
+			{
+				w_position[wall_max].x = 5;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 5; i < col/2; i++)
+			{
+				w_position[wall_max].x = (float)(row-6);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			break;
+		case 7:
+			for (int i = 0; i < row; i++)
+			{
+				w_position[i].x = (float)i;
+				wall_max++;
+				w_position[row+i].x = (float)i;
+				wall_max++;
+				w_position[i].y = 0;
+				w_position[row+i].y = (float)(col-1);
+			}
+			for (int i = 1; i < col/2-1; i++)
+			{
+				w_position[wall_max].x = (float)(row-1);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = col/2+1; i < col-1; i++)
+			{
+				w_position[wall_max].x = 0;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 0; i < row/2-5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col/2+1);
+				wall_max++;
+			}
+			for (int i = row/2+6; i < row; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col/2-1);
+				wall_max++;
+			}
+			break;
+		case 8:
+			for (int i = 0; i < row-5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = 0;
+				wall_max++;
+			}
+			for (int i = 1; i < col; i++)
+			{
+				w_position[wall_max].x = 0;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 0; i < col-5; i++)
+			{
+				w_position[wall_max].x = (float)(row-1);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 5; i < row-1; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col-6);
+				wall_max++;
+			}
+			for (int i = 5; i < col-5; i++)
+			{
+				w_position[wall_max].x = 5;
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 1; i < col/2; i++)
+			{
+				w_position[wall_max].x = (float)(row-6);
+				w_position[wall_max].y = (float)i;
+				wall_max++;
+			}
+			for (int i = 5; i < row/2+5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = 5;
+				wall_max++;
+			}
+			for (int i = row/2-5; i < row-5; i++)
+			{
+				w_position[wall_max].x = (float)i;
+				w_position[wall_max].y = (float)(col/2);
+				wall_max++;
+			}
 			break;
 	}
+}
+
+void CGame::food_init()
+{
+	flag = 0;
+					do
+					{
+						f_Position.x = (float)(rand()%(int)(length/g_size.x));
+						f_Position.y = (float)(rand()%(int)(breadth/g_size.y));
+						temp = move;
+						for(var=1, b_dir = START; var<block; var++,b_dir=b_dir->next)
+						{
+							if(b_dir->dir==1)
+							{
+								temp.x += g_size.x;
+							}
+							else if(b_dir->dir==-1)
+							{
+								temp.x -= g_size.x;
+							}
+							else if(b_dir->dir==2)
+							{
+								temp.y += g_size.y;
+							}
+							else
+							{
+								temp.y -= g_size.y;
+							}
+						
+							if(temp.x>=end.x)
+								temp.x = beg.x+b_size.x;
+							else if(temp.x<beg.x+b_size.x)
+								temp.x = end.x-g_size.x;
+							if(temp.y>=end.y)
+								temp.y = beg.y+b_size.x;
+							else if(temp.y<beg.y+b_size.x)
+								temp.y = end.y-g_size.y;
+
+							if(((int)temp.x==(int)(beg.x+b_size.x+f_Position.x*g_size.x)) & ((int)temp.y == (int)(beg.y+b_size.x+f_Position.y*g_size.y)))
+							{
+								flag = 0;
+								break;
+							}
+							else
+							{
+								flag = 1;
+							}
+						}
+						for (int i = 0; i < wall_max; i++)
+						{
+							if(((int)(beg.x+b_size.x+w_position[i].x*g_size.x)==(int)(beg.x+b_size.x+f_Position.x*g_size.x)) & ((int)(beg.x+b_size.x+w_position[i].y*g_size.x) == (int)(beg.y+b_size.x+f_Position.y*g_size.y)))
+							{
+								flag = 0;
+								break;
+							}
+							else
+							{
+								flag = 1;
+							}
+						}
+					}while(flag==0);
 }
 
 CGame *newgame = 0;
