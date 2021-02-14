@@ -34,7 +34,7 @@ private:
 	int f_dir, f_step;
 	
 	
-	int b_select, i, flag, block, c, over, sound, sound_stat, track, level, plank;
+	int b_select, i, flag, block, c, over, sound_stat, track, level, plank;
 	
 	int resume_campiagn, resume_classic, g_speed;
 	
@@ -44,6 +44,14 @@ private:
 	float trans_pos;
 	CIwFMat2D rot;
 	CIwFVec2 menu_button_size;
+	int maze_select, slide_select_prev, slide_select_next;
+	bool isslide;
+	int slide_start_time, slide_stop_start;
+	float slide_transition, slide_transition_curr;
+	CIwFVec2 slide_start_point, slide_stop_point, slide_transition_position, slide_transition_position_curr;
+
+	//--------------------Audio------------------------
+	int music, sound, vibration;
 
 	//----------------------Tuutorial--------------
 	int tutorial_check, tutorial_show;

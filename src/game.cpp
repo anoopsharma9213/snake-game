@@ -5,12 +5,21 @@ CGame::CGame()
 	page = 1;
 	tutorial_show = 1;
 	control_select = 3;
-	resume_campiagn = 1;
-	resume_classic = 1;
+	resume_campiagn = 0;
+	resume_classic = 0;
+
 	main_page_delay = 0;
 	menu_trans = 0;
 
-	g_speed = (int)(Iw2DGetSurfaceHeight()*0.10f);
+	sound = 0;
+	music = 0;
+	vibration = 0;
+
+	maze_select = 9;
+	slide_start_time = 0;
+	isslide = false;
+
+	g_speed = (int)(Iw2DGetSurfaceHeight()*0.11f);
 
 	initialize();
 }
@@ -181,7 +190,8 @@ void CGame::mainPageUpdate()
 					s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.50f+menu_button_size.y/2)
 				{
 					page = 12;
-					main_page_delay = 20;
+					menu_trans = 1;
+					trans_dir = -1;
 				}
 				else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 					s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.75f+menu_button_size.y/2)
@@ -305,8 +315,9 @@ void CGame::mainPageUpdate()
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*4/5-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*4/5+menu_button_size.y/2)
 					{
-						page = 1;
-						main_page_delay = 20;
+						page = 1124;
+						menu_trans = 1;
+						trans_dir = -1;
 					}
 				}
 				else
@@ -326,8 +337,10 @@ void CGame::mainPageUpdate()
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.75f+menu_button_size.y/2)
 					{
-						page = 1;
-						main_page_delay = 20;
+						page = 1124;
+						slide_select_prev = maze_select;
+						menu_trans = 1;
+						trans_dir = -1;
 					}
 				}
 				break;
@@ -344,7 +357,52 @@ void CGame::mainPageUpdate()
 			case 1123:
 				break;
 			case 1124:
+				if (isslide == false)
+				{
+					slide_stop_point = CIwFVec2((float)s3ePointerGetX(),(float)s3ePointerGetY());
+					float a = (float)sqrt( ( (slide_stop_point.x - slide_start_point.x) * (slide_stop_point.x - slide_start_point.x) ) + ( (slide_stop_point.y - slide_start_point.y) * (slide_stop_point.y - slide_start_point.y) ) );
+					float b = (slide_stop_point.y - slide_start_point.y)/(slide_stop_point.x - slide_start_point.x);
+	
+					if( ( a >= Iw2DGetSurfaceWidth()*0.05f) && (abs(slide_stop_point.x - slide_start_point.x) != 0) && (b >= tan(-PI/6) && b <= tan(PI/6))||(b >= tan(5*PI/6) && b <= tan(7*PI/6)))
+					{
+						slide_start_time = 0;
+						if(slide_start_point.x < slide_stop_point.x)
+						{
+							if(slide_select_prev > 0)
+							{
+								isslide = true;
+								slide_select_next = slide_select_prev-1;
+								slide_transition = Iw2DGetSurfaceWidth()*0.30f;
+								slide_transition_curr = Iw2DGetSurfaceWidth()*0.60f;
+
+								slide_transition_position = CIwFVec2(-Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f);
+								slide_transition_position_curr = CIwFVec2(Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f);
+							}
+						}
+						else
+						{
+							if(slide_select_prev < 9)
+							{
+								isslide = true;
+								slide_select_next = slide_select_prev+1;
+								slide_transition = Iw2DGetSurfaceWidth()*0.30f;
+								slide_transition_curr = Iw2DGetSurfaceWidth()*0.60f;
+
+								slide_transition_position = CIwFVec2(Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f);
+								slide_transition_position_curr = CIwFVec2(Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f);
+							}
+						}
+					}
+				}
 				break;
+		}
+	}
+	else if(s3ePointerGetState(S3E_POINTER_BUTTON_SELECT) & S3E_POINTER_STATE_DOWN)
+	{
+		if(page == 1124 && slide_start_time == 0)
+		{
+			slide_start_time = (int)s3eTimerGetMs();
+			slide_start_point = CIwFVec2((float)s3ePointerGetX(),(float)s3ePointerGetY());
 		}
 	}
 }
@@ -373,6 +431,20 @@ void CGame::mainPage()
 			Iw2DSetColour(0xffffffff);
 			break;
 		case 12:
+
+			Iw2DSetColour(0xff40cea1);
+			Iw2DFillRect(CIwFVec2(0,0),CIwFVec2(Iw2DGetSurfaceWidth(),Iw2DGetSurfaceHeight()));
+			Iw2DSetColour(0xffffffff);
+			Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.30f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,384),CIwFVec2(325,96));
+			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+
+			Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.70f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
+			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+
 			break;
 		case 13:
 			break;
@@ -407,6 +479,87 @@ void CGame::mainPage()
 				Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2,Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,288),CIwFVec2(325,96));
 			}
 			Iw2DSetColour(0xffffffff);
+			break;
+		case 1124:
+			if(isslide == 0)
+			{
+				switch (slide_select_prev)
+				{
+					case 0:
+	
+						Iw2DDrawImage(getresource->get_bg(0),CIwFVec2(Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+						Iw2DDrawImage(getresource->get_bg(1),CIwFVec2(Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+	
+						break;
+					case 9:
+	
+						Iw2DDrawImage(getresource->get_bg(8),CIwFVec2(-Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+						Iw2DDrawImage(getresource->get_bg(9),CIwFVec2(Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+	
+						break;
+					default:
+	
+						Iw2DDrawImage(getresource->get_bg(slide_select_prev-1),CIwFVec2(-Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+						Iw2DDrawImage(getresource->get_bg(slide_select_prev),CIwFVec2(Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+						Iw2DDrawImage(getresource->get_bg(slide_select_prev+1),CIwFVec2(Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+	
+						break;
+				}
+			}
+			else if(slide_select_next < slide_select_prev)
+			{
+				if(slide_transition < Iw2DGetSurfaceWidth()*0.60f)
+				{
+					slide_transition += g_speed;
+					slide_transition_curr -= g_speed;
+					slide_transition_position.x += g_speed*1.17f;
+					slide_transition_position.y -= g_speed*(0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth()));
+					slide_transition_position_curr.x += g_speed*2.17f;
+					slide_transition_position_curr.y += g_speed*(0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth()));
+				}
+				else
+				{
+					isslide = false;
+					slide_select_prev = slide_select_next;
+				}
+				Iw2DDrawImage(getresource->get_bg(slide_select_next),slide_transition_position,CIwFVec2(slide_transition,slide_transition*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth())));
+				Iw2DDrawImage(getresource->get_bg(slide_select_next+1),slide_transition_position_curr,CIwFVec2(slide_transition_curr,slide_transition_curr*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth())));
+				if(slide_select_next+2 <= 9)
+				{
+					Iw2DDrawImage(getresource->get_bg(slide_select_next+2),CIwFVec2(Iw2DGetSurfaceWidth()*0.55f+slide_transition,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+				}
+				if(slide_select_next-1 >= 0)
+				{
+					Iw2DDrawImage(getresource->get_bg(slide_select_next-1),CIwFVec2(-Iw2DGetSurfaceWidth()*0.75f + slide_transition,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+				}
+			}
+			else if(slide_select_next > slide_select_prev)
+			{
+				if(slide_transition < Iw2DGetSurfaceWidth()*0.60f)
+				{
+					slide_transition += g_speed;
+					slide_transition_curr -= g_speed;
+					slide_transition_position.x -= g_speed*2.17f;
+					slide_transition_position.y -= g_speed*(0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth()));
+					slide_transition_position_curr.x -= g_speed*1.17f;
+					slide_transition_position_curr.y += g_speed*(0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth()));
+				}
+				else
+				{
+					isslide = false;
+					slide_select_prev = slide_select_next;
+				}
+				Iw2DDrawImage(getresource->get_bg(slide_select_next),slide_transition_position,CIwFVec2(slide_transition,slide_transition*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth())));
+				Iw2DDrawImage(getresource->get_bg(slide_select_next-1),slide_transition_position_curr,CIwFVec2(slide_transition_curr,slide_transition_curr*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth())));
+				if(slide_select_next-2 >= 0)
+				{
+					Iw2DDrawImage(getresource->get_bg(slide_select_next-2),CIwFVec2(Iw2DGetSurfaceWidth()*0.15f-slide_transition,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+				}
+				if(slide_select_next+1 <= 9)
+				{
+					Iw2DDrawImage(getresource->get_bg(slide_select_next+1),CIwFVec2(Iw2DGetSurfaceWidth()*1.45f - slide_transition,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+				}
+			}
 			break;
 	}
 
@@ -590,6 +743,56 @@ void CGame::menu_trans_draw()
 	
 				break;
 			case 12:
+				
+				if(trans_dir == -1)
+				{
+					trans_pos -= g_speed;
+					if (trans_pos <= Iw2DGetSurfaceWidth()*0.65f)
+					{
+						trans_dir = 1;
+					}
+					Iw2DSetColour(0xaaffffff);
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,0),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,0),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,96),CIwFVec2(325,96));
+					Iw2DSetColour(0xffffffff);
+				}
+				else if(trans_dir == 1)
+				{
+					trans_pos += g_speed;
+					if (trans_pos >= Iw2DGetSurfaceWidth())
+					{
+						trans_dir = -2;
+					}
+					Iw2DSetColour(0xaaffffff);
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,0),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,0),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,96),CIwFVec2(325,96));
+					Iw2DSetColour(0xffffffff);
+				}
+				else if (trans_dir == -2)
+				{
+					trans_pos -= g_speed;
+					if(trans_pos <= 0)
+					{
+						trans_pos = 0;
+						menu_trans = 0;
+					}
+
+					Iw2DSetColour(0xff40cea1);
+					Iw2DFillRect(CIwFVec2(trans_pos + 0,0),CIwFVec2(Iw2DGetSurfaceWidth(),Iw2DGetSurfaceHeight()));
+					Iw2DSetColour(0xffffffff);
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.30f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,384),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.70f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+				}
+
 				break;
 			case 13:
 				break;
@@ -726,6 +929,72 @@ void CGame::menu_trans_draw()
 					}
 				}
 				Iw2DSetColour(0xffffffff);
+				break;
+
+			case 1124:
+
+				Iw2DSetColour(0xaaffffff);
+				if(trans_dir == -1)
+				{
+					trans_pos -= g_speed;
+					if (trans_pos <= Iw2DGetSurfaceWidth()*0.65f)
+					{
+						trans_dir = 1;
+					}
+					if(resume_classic == 1)
+					{
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*1/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*2/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,192),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.15f,Iw2DGetSurfaceHeight()*4/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,288),CIwFVec2(325,96));
+					}
+					else
+					{
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,192),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,288),CIwFVec2(325,96));
+					}
+				}
+				else if(trans_dir == 1)
+				{
+					trans_pos += g_speed;
+					if (trans_pos >= Iw2DGetSurfaceWidth())
+					{
+						trans_dir = -2;
+					}
+					if(resume_classic == 1)
+					{
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*1/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*2/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,192),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.15f,Iw2DGetSurfaceHeight()*4/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,288),CIwFVec2(325,96));
+					}
+					else
+					{
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,192),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,288),CIwFVec2(325,96));
+					}
+				}
+				else if (trans_dir == -2)
+				{
+					trans_pos -= g_speed;
+					if(trans_pos <= Iw2DGetSurfaceWidth()*0.65f)
+					{
+						menu_trans = 0;//trans_dir = 2;
+					}
+				}
+				/*else
+				{
+					trans_pos += g_speed;
+					if (trans_pos >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2)
+					{
+						trans_pos = Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2;
+						menu_trans = 0;
+					}
+					
+				}*/
+				Iw2DSetColour(0xffffffff);
 	
 				break;
 		}
@@ -785,6 +1054,57 @@ void CGame::menu_trans_draw()
 	
 				break;
 			case 12:
+
+				if(trans_dir == -1)
+				{
+					trans_pos += g_speed;
+					if(trans_pos >= Iw2DGetSurfaceWidth())
+					{
+						trans_dir = -2;	
+					}
+
+					Iw2DSetColour(0xff40cea1);
+					Iw2DFillRect(CIwFVec2(trans_pos + 0,0),CIwFVec2(Iw2DGetSurfaceWidth(),Iw2DGetSurfaceHeight()));
+					Iw2DSetColour(0xffffffff);
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.30f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,384),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.70f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+				}
+				else if(trans_dir == -2)
+				{
+					trans_pos -= g_speed;
+					if (trans_pos <= Iw2DGetSurfaceWidth()*0.65f)
+					{
+						trans_dir = 2;
+					}
+					Iw2DSetColour(0xaaffffff);
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,0),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,0),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,96),CIwFVec2(325,96));
+					Iw2DSetColour(0xffffffff);
+				}
+				else if(trans_dir == 2)
+				{
+					trans_pos += g_speed;
+					if (trans_pos >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2)
+					{
+						trans_pos = Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2;
+						page = 1;
+						menu_trans = 0;
+					}
+					Iw2DSetColour(0xaaffffff);
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,0),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,0),CIwFVec2(325,96));
+					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,96),CIwFVec2(325,96));
+					Iw2DSetColour(0xffffffff);
+				}
+
 				break;
 			case 13:
 				break;
