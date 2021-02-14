@@ -2,24 +2,69 @@
 
 CGame::CGame()
 {
+
+	_store = new struct save;
+
+	if(s3eSecureStorageGet(_store,sizeof(struct save)) == S3E_RESULT_SUCCESS)
+	{
+		control_select = _store->c;
+		sound = _store->s;
+		music = _store->m;
+		vibration = _store->v;
+		maze_select = _store->maze;
+		resume_campiagn = _store->r_ca;
+		resume_classic = _store->r_cl;
+	}
+	else
+	{
+		control_select = 1;
+		sound = 1;
+		music = 1;
+		vibration = 1;
+		maze_select = 0;
+		resume_campiagn = 0;
+		resume_classic = 0;
+	}
+
 	page = 1;
 	tutorial_show = 1;
-	control_select = 3;
-	resume_campiagn = 0;
-	resume_classic = 0;
 
 	main_page_delay = 0;
 	menu_trans = 0;
 
-	sound = 0;
-	music = 0;
-	vibration = 0;
-
-	maze_select = 9;
 	slide_start_time = 0;
 	isslide = false;
 
-	g_speed = (int)(Iw2DGetSurfaceHeight()*0.11f);
+	for (int i = 0; i < 4; i++)
+	{
+		m_tem[i] = 0;
+	}
+
+	switch (music)
+	{
+		case -1:
+		case 1:
+			s3eAudioPlay("Sound/bk_music_1.mp3",0);
+			break;
+		case -2:
+		case 2:
+			s3eAudioPlay("Sound/bk_music_2.mp3",0);
+			break;
+		case -3:
+		case 3:
+			s3eAudioPlay("Sound/bk_music_3.mp3",0);
+			break;
+	}
+	if(music < 0)
+	{
+		s3eAudioSetInt(S3E_AUDIO_VOLUME,0);
+	}
+	else
+	{
+		s3eAudioSetInt(S3E_AUDIO_VOLUME,S3E_AUDIO_MAX_VOLUME);
+	}
+
+	g_speed = (int)(Iw2DGetSurfaceHeight()*0.05f);
 
 	initialize();
 }
@@ -36,10 +81,52 @@ CGame::~CGame()
 		}
 		delete START;
 	}
+
+	_store->c = control_select;
+	_store->s = sound;
+	_store->m = music;
+	_store->v = vibration;
+	_store->maze = maze_select;
+	_store->r_ca = resume_campiagn;
+	_store->r_cl = resume_classic;
+	
+	s3eSecureStoragePut(_store,sizeof(struct save));
+	s3eAudioStop();
+	delete _store;
 }
 
 void CGame::Update()
 {
+	if(s3eDeviceGetInt(S3E_DEVICE_OS)==S3E_OS_ID_WP8)
+	{
+		switch (m_tem[0])
+		{
+			case 0:
+				m_tem[1] = s3eAudioGetInt(S3E_AUDIO_POSITION);
+				break;
+			case 10:
+				m_tem[2] = s3eAudioGetInt(S3E_AUDIO_POSITION);
+				break;
+			case 15:
+				m_tem[3] = s3eAudioGetInt(S3E_AUDIO_POSITION);
+				break;
+		}
+		m_tem[0]++;
+		if(m_tem[0]==16 && m_tem[1]==m_tem[2] && m_tem[2]==m_tem[3])
+		{
+			s3eAudioPause();
+			s3eAudioResume();
+		}
+		if (m_tem[0]==16)
+		{
+			m_tem[0]=0;
+		}
+		if(s3eAudioGetInt(S3E_AUDIO_DURATION)-s3eAudioGetInt(S3E_AUDIO_POSITION) <= 1000)
+		{
+			s3eAudioSetInt(S3E_AUDIO_POSITION,0);
+		}
+	}
+
 	switch (page)
 	{
 		case 2:
@@ -49,9 +136,13 @@ void CGame::Update()
 			tutorial_update();
 			break;
 		default:
-			if(menu_trans == 0)
+			if(menu_trans == 0 && main_page_delay == 0)
 			{
 				mainPageUpdate();
+			}
+			else if (main_page_delay != 0)
+			{
+				main_page_delay--;
 			}
 			break;
 	}
@@ -93,6 +184,8 @@ void CGame::initialize()
 
 	menu_button_size.y = Iw2DGetSurfaceHeight()*0.133f;
 	menu_button_size.x = menu_button_size.y * 3.38f;
+
+	control_button_size.x = control_button_size.y = Iw2DGetSurfaceWidth()*0.12f;
 
 	trans_pos = Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2;
 
@@ -217,12 +310,103 @@ void CGame::mainPageUpdate()
 				}
 				break;
 			case 12:
-				page = 1;
-				main_page_delay = 20;
+				//Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2
+				if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.40f && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.40f+control_button_size.x &&
+					s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.19f+control_button_size.x/2)
+				{
+					control_select = 1;
+					main_page_delay = 20;
+				}
+				else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.60f && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.60f+control_button_size.x &&
+					s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.19f+control_button_size.x/2)
+				{
+					control_select = 2;
+					main_page_delay = 20;
+				}
+				else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+control_button_size.x &&
+					s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.19f+control_button_size.x/2)
+				{
+					control_select = 3;
+					main_page_delay = 20;
+				}
+				else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.40f && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.40f+control_button_size.x &&
+					s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.50f+control_button_size.x/2)
+				{
+					if(music > 0)
+					{
+						music = 1;
+						s3eAudioPlay("Sound/bk_music_1.mp3",0);
+						main_page_delay = 20;
+					}
+				}
+				else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.60f && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.60f+control_button_size.x &&
+					s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.50f+control_button_size.x/2)
+				{
+					if(music > 0)
+					{
+						music = 2;
+						s3eAudioPlay("Sound/bk_music_2.mp3",0);
+						main_page_delay = 20;
+					}
+				}
+				else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+control_button_size.x &&
+					s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.50f+control_button_size.x/2)
+				{
+					if(music > 0)
+					{
+						music = 3;
+						s3eAudioPlay("Sound/bk_music_3.mp3",0);
+						main_page_delay = 20;
+					}
+				}
+				else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.40f && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.40f+control_button_size.x &&
+					s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.83f+control_button_size.x/2)
+				{
+					if(music < 0)
+					{
+						music = -music;
+						s3eAudioResume();
+						s3eAudioSetInt(S3E_AUDIO_VOLUME,S3E_AUDIO_MAX_VOLUME);
+					}
+					else
+					{
+						music = -music;
+						s3eAudioPause();
+						s3eAudioSetInt(S3E_AUDIO_VOLUME,0);
+					}
+					main_page_delay = 20;
+				}
+				else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.60f && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.60f+control_button_size.x &&
+					s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.83f+control_button_size.x/2)
+				{
+					if(sound == 0)
+					{
+						sound = 1;
+					}
+					else
+					{
+						sound = 0;
+					}
+					main_page_delay = 20;
+				}
+				else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+control_button_size.x &&
+					s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.83f+control_button_size.x/2)
+				{
+					if(vibration == 0)
+					{
+						vibration = 1;
+					}
+					else
+					{
+						vibration = 0;
+					}
+					main_page_delay = 20;
+				}
+				
 				break;
 			case 13:
 				page = 1;
-				main_page_delay = 20;
+				//main_page_delay = 20;
 				break;
 			case 111:
 				if(resume_campiagn == 1)
@@ -236,7 +420,6 @@ void CGame::mainPageUpdate()
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.50f+menu_button_size.y/2)
 					{
-						control_select = 2;
 						page = 2;
 						main_page_delay = 20;
 					}
@@ -252,7 +435,6 @@ void CGame::mainPageUpdate()
 					if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*1/3-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*1/3+menu_button_size.y/2)
 					{
-						control_select = 2;
 						page = 2;
 						main_page_delay = 20;
 					}
@@ -303,7 +485,7 @@ void CGame::mainPageUpdate()
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*2/5-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*2/5+menu_button_size.y/2)
 					{
-						page = 1;
+						page = 2;
 						main_page_delay = 20;
 					}
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
@@ -325,7 +507,7 @@ void CGame::mainPageUpdate()
 					if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.25f+menu_button_size.y/2)
 					{
-						page = 1;
+						page = 2;
 						main_page_delay = 20;
 					}
 					else if(s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2 && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f+menu_button_size.x/2 &&
@@ -338,7 +520,7 @@ void CGame::mainPageUpdate()
 						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2 && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.75f+menu_button_size.y/2)
 					{
 						page = 1124;
-						slide_select_prev = maze_select;
+						slide_select_curr = maze_select;
 						menu_trans = 1;
 						trans_dir = -1;
 					}
@@ -363,15 +545,15 @@ void CGame::mainPageUpdate()
 					float a = (float)sqrt( ( (slide_stop_point.x - slide_start_point.x) * (slide_stop_point.x - slide_start_point.x) ) + ( (slide_stop_point.y - slide_start_point.y) * (slide_stop_point.y - slide_start_point.y) ) );
 					float b = (slide_stop_point.y - slide_start_point.y)/(slide_stop_point.x - slide_start_point.x);
 	
-					if( ( a >= Iw2DGetSurfaceWidth()*0.05f) && (abs(slide_stop_point.x - slide_start_point.x) != 0) && (b >= tan(-PI/6) && b <= tan(PI/6))||(b >= tan(5*PI/6) && b <= tan(7*PI/6)))
+					if( ( a >= Iw2DGetSurfaceWidth()*0.05f) && ((slide_stop_point.x - slide_start_point.x) != 0) && (b >= tan(-PI/6) && b <= tan(PI/6))||(b >= tan(5*PI/6) && b <= tan(7*PI/6)))
 					{
 						slide_start_time = 0;
 						if(slide_start_point.x < slide_stop_point.x)
 						{
-							if(slide_select_prev > 0)
+							if(slide_select_curr > 0)
 							{
 								isslide = true;
-								slide_select_next = slide_select_prev-1;
+								slide_select_next = slide_select_curr-1;
 								slide_transition = Iw2DGetSurfaceWidth()*0.30f;
 								slide_transition_curr = Iw2DGetSurfaceWidth()*0.60f;
 
@@ -381,10 +563,10 @@ void CGame::mainPageUpdate()
 						}
 						else
 						{
-							if(slide_select_prev < 9)
+							if(slide_select_curr < 9)
 							{
 								isslide = true;
-								slide_select_next = slide_select_prev+1;
+								slide_select_next = slide_select_curr+1;
 								slide_transition = Iw2DGetSurfaceWidth()*0.30f;
 								slide_transition_curr = Iw2DGetSurfaceWidth()*0.60f;
 
@@ -392,6 +574,11 @@ void CGame::mainPageUpdate()
 								slide_transition_position_curr = CIwFVec2(Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f);
 							}
 						}
+					}
+					else if (s3ePointerGetX() >= Iw2DGetSurfaceWidth()*0.20f && s3ePointerGetX() <= Iw2DGetSurfaceWidth()*0.80f &&
+						s3ePointerGetY() >= Iw2DGetSurfaceHeight()*0.20f && s3ePointerGetY() <= Iw2DGetSurfaceHeight()*0.80f)
+					{
+						maze_select = slide_select_curr;
 					}
 				}
 				break;
@@ -432,10 +619,103 @@ void CGame::mainPage()
 			break;
 		case 12:
 
-			Iw2DSetColour(0xff40cea1);
-			Iw2DFillRect(CIwFVec2(0,0),CIwFVec2(Iw2DGetSurfaceWidth(),Iw2DGetSurfaceHeight()));
-			Iw2DSetColour(0xffffffff);
-			Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.30f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,384),CIwFVec2(325,96));
+			//Iw2DSetColour(0xff40cea1);
+			//Iw2DSetColour(0xff0000ff);
+			
+			
+			Iw2DDrawImage(getresource->get_control_bg(),CIwFVec2(0,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),(float)Iw2DGetSurfaceHeight()));
+			
+			switch (control_select)
+			{
+				case 1:
+					Iw2DSetColour(0xff0077ff);
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(0,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xffffffff);
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(150,0),CIwFVec2(150,150));
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(300,0),CIwFVec2(150,150));
+					break;
+				case 2:
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(0,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xff0077ff);
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(150,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xffffffff);
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(300,0),CIwFVec2(150,150));
+					break;
+				case 3:
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(0,0),CIwFVec2(150,150));
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(150,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xff0077ff);
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(300,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xffffffff);
+					break;
+			}
+
+			switch (music)
+			{
+				case 1:
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xff0077ff);
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xffffffff);
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					break;
+				case 2:
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xff0077ff);
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xffffffff);
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					break;
+				case 3:
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xff0077ff);
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xffffffff);
+					break;
+				default:
+					Iw2DSetColour(0xff0000ff);
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+					Iw2DSetColour(0xffffffff);
+					break;
+			}
+			
+			if (sound == 1)
+			{
+				Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(150,150),CIwFVec2(150,150));
+			}
+			else
+			{
+				Iw2DSetColour(0xff0000ff);
+				Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(150,150),CIwFVec2(150,150));
+				Iw2DSetColour(0xffffffff);
+			}
+			if (vibration == 1)
+			{
+				Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(450,150),CIwFVec2(150,150));
+			}
+			else
+			{
+				Iw2DSetColour(0xff0000ff);
+				Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(450,150),CIwFVec2(150,150));
+				Iw2DSetColour(0xffffffff);
+			}
+
+			/*if (music == 1)
+			{
+				Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+			}
+			else
+			{
+				Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(0,150),CIwFVec2(150,150));
+			}*/
+			/*Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.30f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,384),CIwFVec2(325,96));
 			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
 			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
 			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
@@ -444,6 +724,7 @@ void CGame::mainPage()
 			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
 			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
 			Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+			*/
 
 			break;
 		case 13:
@@ -481,9 +762,11 @@ void CGame::mainPage()
 			Iw2DSetColour(0xffffffff);
 			break;
 		case 1124:
+
+			Iw2DDrawImage(getresource->get_select_bg(),CIwFVec2(0,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),(float)Iw2DGetSurfaceHeight()));
 			if(isslide == 0)
 			{
-				switch (slide_select_prev)
+				switch (slide_select_curr)
 				{
 					case 0:
 	
@@ -499,32 +782,32 @@ void CGame::mainPage()
 						break;
 					default:
 	
-						Iw2DDrawImage(getresource->get_bg(slide_select_prev-1),CIwFVec2(-Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
-						Iw2DDrawImage(getresource->get_bg(slide_select_prev),CIwFVec2(Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
-						Iw2DDrawImage(getresource->get_bg(slide_select_prev+1),CIwFVec2(Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+						Iw2DDrawImage(getresource->get_bg(slide_select_curr-1),CIwFVec2(-Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+						Iw2DDrawImage(getresource->get_bg(slide_select_curr),CIwFVec2(Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+						Iw2DDrawImage(getresource->get_bg(slide_select_curr+1),CIwFVec2(Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
 	
 						break;
 				}
 			}
-			else if(slide_select_next < slide_select_prev)
+			else if(slide_select_next < slide_select_curr)
 			{
-				if(slide_transition < Iw2DGetSurfaceWidth()*0.60f)
+				if(slide_transition < Iw2DGetSurfaceWidth()*0.60f - g_speed)
 				{
 					slide_transition += g_speed;
 					slide_transition_curr -= g_speed;
 					slide_transition_position.x += g_speed*1.17f;
-					slide_transition_position.y -= g_speed*(0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth()));
+					slide_transition_position.y -= g_speed*0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth());
 					slide_transition_position_curr.x += g_speed*2.17f;
-					slide_transition_position_curr.y += g_speed*(0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth()));
+					slide_transition_position_curr.y += g_speed*0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth());
 				}
 				else
 				{
 					isslide = false;
-					slide_select_prev = slide_select_next;
+					slide_select_curr = slide_select_next;
 				}
 				Iw2DDrawImage(getresource->get_bg(slide_select_next),slide_transition_position,CIwFVec2(slide_transition,slide_transition*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth())));
 				Iw2DDrawImage(getresource->get_bg(slide_select_next+1),slide_transition_position_curr,CIwFVec2(slide_transition_curr,slide_transition_curr*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth())));
-				if(slide_select_next+2 <= 9)
+				if(slide_select_next+2 <= 9 && Iw2DGetSurfaceWidth()*0.55f+slide_transition <= Iw2DGetSurfaceWidth())
 				{
 					Iw2DDrawImage(getresource->get_bg(slide_select_next+2),CIwFVec2(Iw2DGetSurfaceWidth()*0.55f+slide_transition,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
 				}
@@ -533,25 +816,25 @@ void CGame::mainPage()
 					Iw2DDrawImage(getresource->get_bg(slide_select_next-1),CIwFVec2(-Iw2DGetSurfaceWidth()*0.75f + slide_transition,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
 				}
 			}
-			else if(slide_select_next > slide_select_prev)
+			else if(slide_select_next > slide_select_curr)
 			{
-				if(slide_transition < Iw2DGetSurfaceWidth()*0.60f)
+				if(slide_transition < Iw2DGetSurfaceWidth()*0.60f - g_speed)
 				{
 					slide_transition += g_speed;
 					slide_transition_curr -= g_speed;
 					slide_transition_position.x -= g_speed*2.17f;
-					slide_transition_position.y -= g_speed*(0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth()));
+					slide_transition_position.y -= g_speed*0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth());
 					slide_transition_position_curr.x -= g_speed*1.17f;
-					slide_transition_position_curr.y += g_speed*(0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth()));
+					slide_transition_position_curr.y += g_speed*0.5f*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth());
 				}
 				else
 				{
 					isslide = false;
-					slide_select_prev = slide_select_next;
+					slide_select_curr = slide_select_next;
 				}
 				Iw2DDrawImage(getresource->get_bg(slide_select_next),slide_transition_position,CIwFVec2(slide_transition,slide_transition*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth())));
 				Iw2DDrawImage(getresource->get_bg(slide_select_next-1),slide_transition_position_curr,CIwFVec2(slide_transition_curr,slide_transition_curr*((float)Iw2DGetSurfaceHeight()/(float)Iw2DGetSurfaceWidth())));
-				if(slide_select_next-2 >= 0)
+				if(slide_select_next-2 >= 0 && Iw2DGetSurfaceWidth()*0.15f-slide_transition >= -Iw2DGetSurfaceWidth()*0.30f)
 				{
 					Iw2DDrawImage(getresource->get_bg(slide_select_next-2),CIwFVec2(Iw2DGetSurfaceWidth()*0.15f-slide_transition,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
 				}
@@ -779,18 +1062,89 @@ void CGame::menu_trans_draw()
 						menu_trans = 0;
 					}
 
-					Iw2DSetColour(0xff40cea1);
-					Iw2DFillRect(CIwFVec2(trans_pos + 0,0),CIwFVec2(Iw2DGetSurfaceWidth(),Iw2DGetSurfaceHeight()));
-					Iw2DSetColour(0xffffffff);
-					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.30f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,384),CIwFVec2(325,96));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					Iw2DDrawImage(getresource->get_control_bg(),CIwFVec2(trans_pos,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),(float)Iw2DGetSurfaceHeight()));
+			
+					switch (control_select)
+					{
+						case 1:
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(0,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(150,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(300,0),CIwFVec2(150,150));
+							break;
+						case 2:
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(0,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(150,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(300,0),CIwFVec2(150,150));
+							break;
+						case 3:
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(0,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(150,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(300,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							break;
+					}
 
-					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.70f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					switch (music)
+					{
+						case 1:
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							break;
+						case 2:
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							break;
+						case 3:
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							break;
+						default:
+							Iw2DSetColour(0xff0000ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							break;
+					}
+			
+					if (sound == 1)
+					{
+						Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(150,150),CIwFVec2(150,150));
+					}
+					else
+					{
+						Iw2DSetColour(0xff0000ff);
+						Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(150,150),CIwFVec2(150,150));
+						Iw2DSetColour(0xffffffff);
+					}
+					if (vibration == 1)
+					{
+						Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(450,150),CIwFVec2(150,150));
+					}
+					else
+					{
+						Iw2DSetColour(0xff0000ff);
+						Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(450,150),CIwFVec2(150,150));
+						Iw2DSetColour(0xffffffff);
+					}
 				}
 
 				break;
@@ -933,7 +1287,6 @@ void CGame::menu_trans_draw()
 
 			case 1124:
 
-				Iw2DSetColour(0xaaffffff);
 				if(trans_dir == -1)
 				{
 					trans_pos -= g_speed;
@@ -941,6 +1294,7 @@ void CGame::menu_trans_draw()
 					{
 						trans_dir = 1;
 					}
+					Iw2DSetColour(0xaaffffff);
 					if(resume_classic == 1)
 					{
 						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*1/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
@@ -960,8 +1314,10 @@ void CGame::menu_trans_draw()
 					trans_pos += g_speed;
 					if (trans_pos >= Iw2DGetSurfaceWidth())
 					{
+						trans_pos = Iw2DGetSurfaceWidth()+Iw2DGetSurfaceWidth()*0.15f;
 						trans_dir = -2;
 					}
+					Iw2DSetColour(0xaaffffff);
 					if(resume_classic == 1)
 					{
 						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*1/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
@@ -979,21 +1335,36 @@ void CGame::menu_trans_draw()
 				else if (trans_dir == -2)
 				{
 					trans_pos -= g_speed;
-					if(trans_pos <= Iw2DGetSurfaceWidth()*0.65f)
+					if(trans_pos <= 0)
 					{
-						menu_trans = 0;//trans_dir = 2;
-					}
-				}
-				/*else
-				{
-					trans_pos += g_speed;
-					if (trans_pos >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2)
-					{
-						trans_pos = Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2;
+						trans_pos = 0;
 						menu_trans = 0;
 					}
 					
-				}*/
+					Iw2DDrawImage(getresource->get_select_bg(),CIwFVec2(trans_pos,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),(float)Iw2DGetSurfaceHeight()));
+					switch (slide_select_curr)
+					{
+						case 0:
+		
+							Iw2DDrawImage(getresource->get_bg(0),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+							Iw2DDrawImage(getresource->get_bg(1),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+		
+							break;
+						case 9:
+		
+							Iw2DDrawImage(getresource->get_bg(8),CIwFVec2(trans_pos - Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+							Iw2DDrawImage(getresource->get_bg(9),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+		
+							break;
+						default:
+		
+							Iw2DDrawImage(getresource->get_bg(slide_select_curr-1),CIwFVec2(trans_pos - Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+							Iw2DDrawImage(getresource->get_bg(slide_select_curr),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+							Iw2DDrawImage(getresource->get_bg(slide_select_curr+1),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+		
+							break;
+					}
+				}
 				Iw2DSetColour(0xffffffff);
 	
 				break;
@@ -1063,18 +1434,89 @@ void CGame::menu_trans_draw()
 						trans_dir = -2;	
 					}
 
-					Iw2DSetColour(0xff40cea1);
-					Iw2DFillRect(CIwFVec2(trans_pos + 0,0),CIwFVec2(Iw2DGetSurfaceWidth(),Iw2DGetSurfaceHeight()));
-					Iw2DSetColour(0xffffffff);
-					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.30f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,384),CIwFVec2(325,96));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.30f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					Iw2DDrawImage(getresource->get_control_bg(),CIwFVec2(trans_pos,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),(float)Iw2DGetSurfaceHeight()));
+			
+					switch (control_select)
+					{
+						case 1:
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(0,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(150,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(300,0),CIwFVec2(150,150));
+							break;
+						case 2:
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(0,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(150,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(300,0),CIwFVec2(150,150));
+							break;
+						case 3:
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(0,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(150,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.19f-control_button_size.x/2),control_button_size,CIwFVec2(300,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							break;
+					}
 
-					Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.05f,Iw2DGetSurfaceHeight()*0.70f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
-					Iw2DDrawImageRegion(getresource->get_body(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.70f-Iw2DGetSurfaceWidth()*0.06f),CIwFVec2(Iw2DGetSurfaceWidth()*0.12f,Iw2DGetSurfaceWidth()*0.12f),CIwFVec2(0,0),CIwFVec2(30,30));
+					switch (music)
+					{
+						case 1:
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							break;
+						case 2:
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							break;
+						case 3:
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xff0077ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							break;
+						default:
+							Iw2DSetColour(0xff0000ff);
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(600,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.40f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.50f-control_button_size.x/2),control_button_size,CIwFVec2(450,0),CIwFVec2(150,150));
+							Iw2DSetColour(0xffffffff);
+							break;
+					}
+			
+					if (sound == 1)
+					{
+						Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(150,150),CIwFVec2(150,150));
+					}
+					else
+					{
+						Iw2DSetColour(0xff0000ff);
+						Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(150,150),CIwFVec2(150,150));
+						Iw2DSetColour(0xffffffff);
+					}
+					if (vibration == 1)
+					{
+						Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(450,150),CIwFVec2(150,150));
+					}
+					else
+					{
+						Iw2DSetColour(0xff0000ff);
+						Iw2DDrawImageRegion(getresource->get_controls(),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.80f,Iw2DGetSurfaceHeight()*0.83f-control_button_size.x/2),control_button_size,CIwFVec2(450,150),CIwFVec2(150,150));
+						Iw2DSetColour(0xffffffff);
+					}
 				}
 				else if(trans_dir == -2)
 				{
@@ -1247,6 +1689,88 @@ void CGame::menu_trans_draw()
 				Iw2DSetColour(0xffffffff);
 	
 				break;
+			case 1124:
+
+				if(trans_dir == -1)
+				{
+					trans_pos += g_speed;
+					if (trans_pos >= Iw2DGetSurfaceWidth()+Iw2DGetSurfaceWidth()*0.15f)
+					{
+						trans_dir = -2;
+					}
+					Iw2DDrawImage(getresource->get_select_bg(),CIwFVec2(trans_pos,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),(float)Iw2DGetSurfaceHeight()));
+					switch (slide_select_curr)
+					{
+						case 0:
+		
+							Iw2DDrawImage(getresource->get_bg(0),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+							Iw2DDrawImage(getresource->get_bg(1),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+		
+							break;
+						case 9:
+		
+							Iw2DDrawImage(getresource->get_bg(8),CIwFVec2(trans_pos - Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+							Iw2DDrawImage(getresource->get_bg(9),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+		
+							break;
+						default:
+		
+							Iw2DDrawImage(getresource->get_bg(slide_select_curr-1),CIwFVec2(trans_pos - Iw2DGetSurfaceWidth()*0.15f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+							Iw2DDrawImage(getresource->get_bg(slide_select_curr),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.20f,Iw2DGetSurfaceHeight()*0.20f),CIwFVec2(Iw2DGetSurfaceWidth()*0.60f,Iw2DGetSurfaceHeight()*0.60f));
+							Iw2DDrawImage(getresource->get_bg(slide_select_curr+1),CIwFVec2(trans_pos + Iw2DGetSurfaceWidth()*0.85f,Iw2DGetSurfaceHeight()*0.35f),CIwFVec2(Iw2DGetSurfaceWidth()*0.30f,Iw2DGetSurfaceHeight()*0.30f));
+		
+							break;
+					}
+				}
+				else if (trans_dir == -2)
+				{
+					trans_pos -= g_speed;
+					if(trans_pos <= Iw2DGetSurfaceWidth()*0.65f)
+					{
+						trans_dir = 2;
+					}
+					Iw2DSetColour(0xaaffffff);
+					if(resume_classic == 1)
+					{
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*1/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*2/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,192),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.15f,Iw2DGetSurfaceHeight()*4/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,288),CIwFVec2(325,96));
+					}
+					else
+					{
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,192),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,288),CIwFVec2(325,96));
+					}
+				}
+				else
+				{
+					trans_pos += g_speed;
+					if (trans_pos >= Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2)
+					{
+						trans_pos = Iw2DGetSurfaceWidth()*0.80f-menu_button_size.x/2;
+						page = 112;
+						menu_trans = 0;
+					}
+					Iw2DSetColour(0xaaffffff);
+					if(resume_classic == 1)
+					{
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*1/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,384),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*2/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,192),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*3/5-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.15f,Iw2DGetSurfaceHeight()*4/5-menu_button_size.y/2),menu_button_size,CIwFVec2(325,288),CIwFVec2(325,96));
+					}
+					else
+					{
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos,Iw2DGetSurfaceHeight()*0.25f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,192),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.05f,Iw2DGetSurfaceHeight()*0.50f-menu_button_size.y/2),menu_button_size,CIwFVec2(0,288),CIwFVec2(325,96));
+						Iw2DDrawImageRegion(getresource->get_menu_button(),CIwFVec2(trans_pos*1.1f,Iw2DGetSurfaceHeight()*0.75f-menu_button_size.y/2),menu_button_size,CIwFVec2(325,288),CIwFVec2(325,96));
+					}
+				}
+				Iw2DSetColour(0xffffffff);
+	
+				break;
 		}
 	}
 }
@@ -1269,7 +1793,7 @@ void CGame::play_Page_Update()
 
 	switch (control_select)
 	{
-		case 1:
+		case 2:
 			if((END->dir == 1 || END->dir == -1))
 			{
 				if((s3eKeyboardGetState(s3eKeyUp) | s3eKeyboardGetState(s3eKey2)) & S3E_KEY_STATE_PRESSED)
@@ -1368,7 +1892,7 @@ void CGame::play_Page_Update()
 		k_show = 0;
 	}
 			break;
-		case 2:
+		case 3:
 			if((s3ePointerGetState(S3E_POINTER_BUTTON_SELECT) & S3E_POINTER_STATE_DOWN))
 		{
 			if((END->dir == 1 || END->dir == -1)  && over == 0)
@@ -1427,7 +1951,7 @@ void CGame::play_Page_Update()
 			
 		}
 			break;
-		case 3:
+		case 1:
 			if((s3ePointerGetState(S3E_POINTER_BUTTON_SELECT) & S3E_POINTER_STATE_RELEASED))
 		{
 			if((END->dir == 1 || END->dir == -1)  && over == 0)
@@ -1751,12 +2275,14 @@ void CGame::play_Page()
 {
 	
 
-	Iw2DDrawImage(getresource->get_bg(0),CIwFVec2(0,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),(float)Iw2DGetSurfaceHeight()));
-	Iw2DDrawImage(getresource->get_frame(),CIwFVec2(beg.x+b_size.x,beg.y+b_size.x),CIwFVec2(length,breadth));
+	Iw2DDrawImage(getresource->get_bg(maze_select),CIwFVec2(0,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),(float)Iw2DGetSurfaceHeight()));
+	Iw2DSetColour(0x77000000);
+	//Iw2DDrawImage(getresource->get_frame(),CIwFVec2(beg.x+b_size.x,beg.y+b_size.x),CIwFVec2(length,breadth));
+	Iw2DSetColour(0xffffffff);
 
 	switch (control_select)
 	{
-		case 1:
+		case 2:
 			if(k_show == 1)
 	{
 		Iw2DSetColour(0x77ffffff);
@@ -1798,7 +2324,7 @@ void CGame::play_Page()
 		Iw2DSetColour(0xffffffff);
 	}
 			break;
-		case 2:
+		case 3:
 			Iw2DSetColour(0x44ffffff);
 	k_pos.x = Iw2DGetSurfaceWidth()*0.7f + k_size.x;
 	k_pos.y = Iw2DGetSurfaceHeight()*0.5f - k_size.x*1.5f;
@@ -1863,7 +2389,7 @@ void CGame::play_Page()
 
 	Iw2DSetTransformMatrix(CIwFMat2D::g_Identity);
 			break;
-		case 3:
+		case 1:
 			Iw2DSetColour(0x77ffffff);
 	if((s3ePointerGetState(S3E_POINTER_BUTTON_SELECT) & S3E_POINTER_STATE_DOWN))
 		{

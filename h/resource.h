@@ -14,6 +14,8 @@ private:
 
 	CIw2DImage *bg[10];
 	CIw2DImage *menu_bg;
+	CIw2DImage *control_bg;
+	CIw2DImage *select_bg;
 	CIw2DImage *frame;
 
 	CIw2DImage *head;
@@ -21,7 +23,7 @@ private:
 	CIw2DImage *food;
 
 	CIw2DImage *key;
-	CIw2DImage *menu;
+	CIw2DImage *controls;
 	CIw2DImage *menu_button;
 	
 	CIw2DFont *font;
@@ -30,6 +32,8 @@ public:
 	
 	CIw2DImage *get_bg(int a)			{return bg[a];}
 	CIw2DImage *get_menu_bg()			{return menu_bg;}
+	CIw2DImage *get_control_bg()		{return control_bg;}
+	CIw2DImage *get_select_bg()			{return select_bg;}
 	CIw2DImage *get_frame()				{return frame;}
 
 	CIw2DImage *get_head()				{return head;}
@@ -37,7 +41,7 @@ public:
 	CIw2DImage *get_food()				{return food;}
 
 	CIw2DImage *get_key()				{return key;}
-	CIw2DImage *get_menu()				{return menu;}
+	CIw2DImage *get_controls()			{return controls;}
 	CIw2DImage *get_menu_button()		{return menu_button;}
 
 	CIw2DFont *get_font()				{return font;}

@@ -11,9 +11,11 @@ private:
 	char print[50];
 	struct save
 	{
-		float star,score,cstar;
+		int s, m, v, c, maze, r_ca, r_cl;
+
+		/*float star,score,cstar;
 		int m, sc, mw;
-		int sc_l[6], pt[4], a[10];
+		int sc_l[6], pt[4], a[10];*/
 	}*_store;
 	
 	//-----------------Interface------------------------
@@ -34,7 +36,7 @@ private:
 	int f_dir, f_step;
 	
 	
-	int b_select, i, flag, block, c, over, sound_stat, track, level, plank;
+	int b_select, i, flag, block, c, over;//, sound_stat, track, level, plank;
 	
 	int resume_campiagn, resume_classic, g_speed;
 	
@@ -43,8 +45,8 @@ private:
 	int k_show, control_select, main_page_delay, menu_trans, trans_dir;
 	float trans_pos;
 	CIwFMat2D rot;
-	CIwFVec2 menu_button_size;
-	int maze_select, slide_select_prev, slide_select_next;
+	CIwFVec2 menu_button_size, control_button_size, control_button_pos;
+	int maze_select, slide_select_curr, slide_select_next;
 	bool isslide;
 	int slide_start_time, slide_stop_start;
 	float slide_transition, slide_transition_curr;
@@ -52,6 +54,7 @@ private:
 
 	//--------------------Audio------------------------
 	int music, sound, vibration;
+	int m_tem[4];
 
 	//----------------------Tuutorial--------------
 	int tutorial_check, tutorial_show;

@@ -14,6 +14,8 @@ CIwResGroup
 	"Design/Background/bg9.jpg"
 
 	"Design/Background/menu_bg.jpg"
+	"Design/Background/control_bg.jpg"
+	"Design/Background/select_bg.jpg"
 
 	"Design/Frame/frame.png"
 }
