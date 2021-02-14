@@ -22,6 +22,7 @@ Resources::Resources()
 	bg[7] = Iw2DCreateImageResource("bg7");
 	bg[8] = Iw2DCreateImageResource("bg8");
 	bg[9] = Iw2DCreateImageResource("bg9");
+	menu_bg = Iw2DCreateImageResource("menu_bg");
 
 	frame = Iw2DCreateImageResource("frame");
 
@@ -36,6 +37,7 @@ Resources::Resources()
 
 	key = Iw2DCreateImageResource("key");
 	menu = Iw2DCreateImageResource("menu");
+	menu_button = Iw2DCreateImageResource("menu_button");
 
 	IwGetResManager()->LoadGroup("Iw2DStrings.group");
 
@@ -59,6 +61,7 @@ Resources::~Resources()
 	{
 		delete bg[i];
 	}
+	delete menu_bg;
 	delete frame;
 
 	delete head;
@@ -67,6 +70,7 @@ Resources::~Resources()
 
 	delete key;
 	delete menu;
+	delete menu_button;
 
 	delete font;
 

@@ -30,16 +30,20 @@ private:
 	CIwFVec2 beg, g_size, b_size, move, a_move, end, temp;
 	float length, breadth, _score, h_score[3];
 	int row, col;
-    CIwFVec2 f_Position, f_Size;
-	int f_dir;
+    CIwFVec2 f_Position, f_Size, f_temp;
+	int f_dir, f_step;
 	
 	
-	int b_select, i, flag, block, c, over, sound, sound_stat, resume, track, level, plank;
+	int b_select, i, flag, block, c, over, sound, sound_stat, track, level, plank;
+	
+	int resume_campiagn, resume_classic, g_speed;
 	
 	//---------------------Control----------------
 	CIwFVec2 k_pos, k_size, k_point, k_drag;
-	int k_show;
+	int k_show, control_select, main_page_delay, menu_trans, trans_dir;
+	float trans_pos;
 	CIwFMat2D rot;
+	CIwFVec2 menu_button_size;
 
 	//----------------------Tuutorial--------------
 	int tutorial_check, tutorial_show;
@@ -51,7 +55,14 @@ public:
 	void Update();
 	void Render();
 
-	void play_Page_ini();
+	void initialize();
+
+	//-----------------Menu Page------------------------------
+	void mainPage();
+	void mainPageUpdate();
+
+	void menu_trans_draw();
+	//void menu_trans_update();
 
 	//--------------------Gameplay Page-----------------------------
 	void play_Page();
@@ -66,8 +77,6 @@ public:
 
 	//---------------------------------Extra-------------------------------
 
-	void mainPage();
-	void mainPageUpdate();
 	void reset();
 };
 
