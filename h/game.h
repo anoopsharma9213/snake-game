@@ -34,7 +34,8 @@ private:
 	int row, col;
     CIwFVec2 f_Position, f_Size, f_temp;
 	int f_dir, f_step;
-	
+	CIwFVec2 w_position[500];
+	int wall_max, wall_rotate;
 	
 	int b_select, i, flag, block, c, over;//, sound_stat, track, level, plank;
 	
@@ -78,6 +79,8 @@ public:
 	//--------------------Gameplay Page-----------------------------
 	void play_Page();
 	void play_Page_Update();
+
+	void wall_init();
 
 	//---------------------Tutorial----------------------------
 	void tutorial();

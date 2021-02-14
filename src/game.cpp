@@ -42,31 +42,35 @@ CGame::CGame()
 
 	switch (music)
 	{
-		case -1:
+		//case -1:
 		case 1:
 			s3eAudioPlay("Sound/bk_music_1.mp3",0);
 			break;
-		case -2:
+		//case -2:
 		case 2:
 			s3eAudioPlay("Sound/bk_music_2.mp3",0);
 			break;
-		case -3:
+		//case -3:
 		case 3:
 			s3eAudioPlay("Sound/bk_music_3.mp3",0);
 			break;
 	}
-	if(music < 0)
+	/*if(music < 0)
 	{
 		s3eAudioSetInt(S3E_AUDIO_VOLUME,0);
 	}
 	else
 	{
 		s3eAudioSetInt(S3E_AUDIO_VOLUME,S3E_AUDIO_MAX_VOLUME);
-	}
+	}*/
 
 	g_speed = (int)(Iw2DGetSurfaceHeight()*0.05f);
 
 	initialize();
+
+	wall_rotate = 0;
+	wall_max = 0;
+	wall_init();
 }
 
 CGame::~CGame()
@@ -365,14 +369,27 @@ void CGame::mainPageUpdate()
 					if(music < 0)
 					{
 						music = -music;
-						s3eAudioResume();
-						s3eAudioSetInt(S3E_AUDIO_VOLUME,S3E_AUDIO_MAX_VOLUME);
+						switch (music)
+						{		
+							case 1:
+								s3eAudioPlay("Sound/bk_music_1.mp3",0);
+								break;
+							case 2:
+								s3eAudioPlay("Sound/bk_music_2.mp3",0);
+								break;					
+							case 3:
+								s3eAudioPlay("Sound/bk_music_3.mp3",0);
+								break;
+						}
+						//s3eAudioResume();
+						//s3eAudioSetInt(S3E_AUDIO_VOLUME,S3E_AUDIO_MAX_VOLUME);
 					}
 					else
 					{
 						music = -music;
-						s3eAudioPause();
-						s3eAudioSetInt(S3E_AUDIO_VOLUME,0);
+						s3eAudioStop();
+						//s3eAudioPause();
+						//s3eAudioSetInt(S3E_AUDIO_VOLUME,0);
 					}
 					main_page_delay = 20;
 				}
@@ -2426,12 +2443,29 @@ void CGame::play_Page()
 		}
 			break;
 	}
-	
 	 
 	Iw2DSetColour(0xffffffff);
 	Iw2DSetFont(getresource->get_font());
+	//sprintf(print,"SCORE : %.0f %.0f",f_Position.x,f_Position.y);
 	sprintf(print,"SCORE : %.0f",_score);
 	Iw2DDrawString(print,CIwFVec2(0,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),Iw2DGetSurfaceHeight()*0.1f),IW_2D_FONT_ALIGN_RIGHT,IW_2D_FONT_ALIGN_CENTRE);
+
+	
+	for (int i = 0; i < wall_max; i++)
+	{
+		f_temp = CIwFVec2(beg.x+b_size.x+w_position[i].x*g_size.x,beg.y+b_size.x+w_position[i].y*g_size.y) + g_size/2;
+		rot.SetRot(PI*wall_rotate/4,f_temp);
+		Iw2DSetTransformMatrix(rot);
+		f_temp = CIwFVec2(beg.x+b_size.x+w_position[i].x*g_size.x,beg.y+b_size.x+w_position[i].y*g_size.y);
+		Iw2DDrawImage(getresource->get_wall(),CIwFVec2(beg.x+b_size.x+w_position[i].x*g_size.x,beg.y+b_size.x+w_position[i].y*g_size.y),g_size);
+		Iw2DSetTransformMatrix(CIwFMat2D::g_Identity);
+	}
+
+	wall_rotate++;
+	if (wall_rotate == 8)
+	{
+		wall_rotate = 0;
+	}
 
 	//Iw2DDrawImageRegion(getresource->get_food(),CIwFVec2(beg.x+b_size.x+f_Position.x*g_size.x,beg.y+b_size.x+f_Position.y*g_size.y),f_Size,CIwFVec2(0,0),CIwFVec2(30,30));
 	switch (f_dir)
@@ -2933,6 +2967,37 @@ void CGame::reset()
 			END->next = b_dir;
 			END = b_dir;
 		}
+	}
+}
+
+void CGame::wall_init()
+{
+	switch (maze_select)
+	{
+		case 0:
+			for (int i = 0; i < row; i++)
+			{
+				w_position[i].x = i;
+				wall_max++;
+				w_position[row+i].x = i;
+				wall_max++;
+				w_position[i].y = 0;
+				w_position[row+i].y = col-1;
+			}
+			for (int i = 1; i < col-1; i++)
+			{
+				w_position[wall_max].x = 0;
+				w_position[wall_max].y = i;
+				wall_max++;
+			}
+			for (int i = 1; i < col-1; i++)
+			{
+				w_position[wall_max].x = row-1;
+				w_position[wall_max].y = i;
+				wall_max++;
+			}
+
+			break;
 	}
 }
 

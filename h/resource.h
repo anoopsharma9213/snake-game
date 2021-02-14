@@ -21,6 +21,7 @@ private:
 	CIw2DImage *head;
 	CIw2DImage *body;
 	CIw2DImage *food;
+	CIw2DImage *wall;
 
 	CIw2DImage *key;
 	CIw2DImage *controls;
@@ -39,6 +40,7 @@ public:
 	CIw2DImage *get_head()				{return head;}
 	CIw2DImage *get_body()				{return body;}
 	CIw2DImage *get_food()				{return food;}
+	CIw2DImage *get_wall()				{return wall;}
 
 	CIw2DImage *get_key()				{return key;}
 	CIw2DImage *get_controls()			{return controls;}

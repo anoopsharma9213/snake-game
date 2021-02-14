@@ -5,4 +5,5 @@ CIwResGroup
 	"Design/Snake/head.png"
 	"Design/Snake/body.png"
 	"Design/Snake/food.png"
+	"Design/Snake/wall.png"
 }

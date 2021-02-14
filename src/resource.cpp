@@ -34,6 +34,7 @@ Resources::Resources()
 	head = Iw2DCreateImageResource("head");
 	body = Iw2DCreateImageResource("body");
 	food = Iw2DCreateImageResource("food");
+	wall = Iw2DCreateImageResource("wall");
 
 	IwGetResManager()->LoadGroup("Control.group");
 
@@ -71,6 +72,7 @@ Resources::~Resources()
 	delete head;
 	delete body;
 	delete food;
+	delete wall;
 
 	delete key;
 	delete controls;
