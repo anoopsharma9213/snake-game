@@ -12,6 +12,7 @@ private:
 	struct save
 	{
 		int s, m, v, c, maze, r_ca, r_cl;
+		int h_ca, l_cl;
 
 		/*float star,score,cstar;
 		int m, sc, mw;
@@ -40,6 +41,7 @@ private:
 	int b_select, var, flag, block, c, over;//, sound_stat, track, level, plank;
 	
 	int resume_campiagn, resume_classic, g_speed;
+	int highscore_ca, level_cl;
 	
 	//---------------------Control----------------
 	CIwFVec2 k_pos, k_size, k_point, k_drag;
@@ -57,7 +59,7 @@ private:
 	int music, sound, vibration;
 	int m_tem[4];
 
-	//----------------------Tuutorial--------------
+	//----------------------Tutorial--------------
 	int tutorial_check, tutorial_show;
 
 	

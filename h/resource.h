@@ -16,6 +16,7 @@ private:
 	CIw2DImage *menu_bg;
 	CIw2DImage *control_bg;
 	CIw2DImage *select_bg;
+	CIw2DImage *about;
 	CIw2DImage *frame;
 
 	CIw2DImage *head;
@@ -28,9 +29,11 @@ private:
 
 	CIw2DImage *key;
 	CIw2DImage *controls;
-	CIw2DImage *menu_button;
-	CIw2DImage *facebook_button;
-	CIw2DImage *rate;
+	CIw2DImage *menu_buttons;
+	CIw2DImage *level;
+	CIw2DImage *star;
+	CIw2DImage *fb_button;
+	CIw2DImage *rate_button;
 	
 	CIw2DFont *font;
 
@@ -40,6 +43,7 @@ public:
 	CIw2DImage *get_menu_bg()			{return menu_bg;}
 	CIw2DImage *get_control_bg()		{return control_bg;}
 	CIw2DImage *get_select_bg()			{return select_bg;}
+	CIw2DImage *get_about()				{return about;}
 	CIw2DImage *get_frame()				{return frame;}
 
 	CIw2DImage *get_head()				{return head;}
@@ -52,9 +56,11 @@ public:
 
 	CIw2DImage *get_key()				{return key;}
 	CIw2DImage *get_controls()			{return controls;}
-	CIw2DImage *get_menu_button()		{return menu_button;}
-	CIw2DImage *get_facebook_button()	{return facebook_button;}
-	CIw2DImage *get_rate()				{return rate;}
+	CIw2DImage *get_menu_buttons()		{return menu_buttons;}
+	CIw2DImage *get_level()				{return level;}
+	CIw2DImage *get_star()				{return star;}
+	CIw2DImage *get_fb_button()			{return fb_button;}
+	CIw2DImage *get_rate_button()		{return rate_button;}
 
 	CIw2DFont *get_font()				{return font;}
 

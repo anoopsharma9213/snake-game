@@ -2,7 +2,7 @@ CIwResGroup
 {
 	name Iw2DStrings
 	
-	"Fonts/Kuli_30_white.gxfont"
-	"Fonts/Kuli_38_white.gxfont"
-	"Fonts/Kuli_44_white.gxfont"
+	"Fonts/segoe_20_white.gxfont"
+	"Fonts/segoe_32_white.gxfont"
+	"Fonts/segoe_40_white.gxfont"
 }

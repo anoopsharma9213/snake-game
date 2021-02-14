@@ -14,6 +14,8 @@ CGame::CGame()
 		maze_select = _store->maze;
 		resume_campiagn = _store->r_ca;
 		resume_classic = _store->r_cl;
+		highscore_ca = _store->h_ca;
+		level_cl = _store->l_cl;
 	}
 	else
 	{
@@ -24,6 +26,8 @@ CGame::CGame()
 		maze_select = 0;
 		resume_campiagn = 0;
 		resume_classic = 0;
+		highscore_ca = 10000;
+		level_cl = 1;
 	}
 
 	page = 1;
@@ -95,6 +99,8 @@ CGame::~CGame()
 	_store->maze = maze_select;
 	_store->r_ca = resume_campiagn;
 	_store->r_cl = resume_classic;
+	_store->h_ca = highscore_ca;
+	_store->l_cl = level_cl;
 	
 	s3eSecureStoragePut(_store,sizeof(struct save));
 	s3eAudioStop();

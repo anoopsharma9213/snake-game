@@ -25,6 +25,7 @@ Resources::Resources()
 	menu_bg = Iw2DCreateImageResource("menu_bg");
 	control_bg = Iw2DCreateImageResource("control_bg");
 	select_bg = Iw2DCreateImageResource("select_bg");
+	about = Iw2DCreateImageResource("about");
 
 	frame = Iw2DCreateImageResource("frame");
 
@@ -43,23 +44,25 @@ Resources::Resources()
 
 	key = Iw2DCreateImageResource("key");
 	controls = Iw2DCreateImageResource("controls");
-	menu_button = Iw2DCreateImageResource("menu_button");
-	facebook_button = Iw2DCreateImageResource("facebook_button");
-	rate = Iw2DCreateImageResource("rate");
+	menu_buttons = Iw2DCreateImageResource("menu_buttons");
+	level = Iw2DCreateImageResource("level");
+	star = Iw2DCreateImageResource("star");
+	fb_button = Iw2DCreateImageResource("fb_button");
+	rate_button = Iw2DCreateImageResource("rate_button");
 
 	IwGetResManager()->LoadGroup("Iw2DStrings.group");
 
 	if(Iw2DGetSurfaceHeight()<=480)
 	{
-		font = Iw2DCreateFontResource("Kuli_30_white");
+		font = Iw2DCreateFontResource("segoe_20_white");
 	}
 	else if(Iw2DGetSurfaceHeight()<=800)
 	{
-		font = Iw2DCreateFontResource("Kuli_38_white");
+		font = Iw2DCreateFontResource("segoe_32_white");
 	}
 	else
 	{
-		font = Iw2DCreateFontResource("Kuli_44_white");
+		font = Iw2DCreateFontResource("segoe_40_white");
 	}
 }
 
@@ -72,6 +75,7 @@ Resources::~Resources()
 	delete menu_bg;
 	delete control_bg;
 	delete select_bg;
+	delete about;
 	delete frame;
 
 	delete head;
@@ -84,9 +88,11 @@ Resources::~Resources()
 
 	delete key;
 	delete controls;
-	delete menu_button;
-	delete facebook_button;
-	delete rate;
+	delete menu_buttons;
+	delete level;
+	delete star;
+	delete fb_button;
+	delete rate_button;
 
 	delete font;
 

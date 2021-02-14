@@ -775,8 +775,8 @@ void CGame::play_Page()
 	Iw2DSetColour(0xffffffff);
 	Iw2DSetFont(getresource->get_font());
 	//sprintf(print,"SCORE : %.0f %.0f",f_Position.x,f_Position.y);
-	sprintf(print,"SCORE : %.0f",_score);
-	Iw2DDrawString(print,CIwFVec2(0,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),Iw2DGetSurfaceHeight()*0.1f),IW_2D_FONT_ALIGN_RIGHT,IW_2D_FONT_ALIGN_CENTRE);
+	sprintf(print,"Score : %.0f",_score);
+	Iw2DDrawString(print,CIwFVec2(0,0),CIwFVec2((float)Iw2DGetSurfaceWidth(),(float)(getresource->get_font()->GetHeight())),IW_2D_FONT_ALIGN_CENTRE,IW_2D_FONT_ALIGN_CENTRE);
 
 	
 	for (int i = 0; i < wall_max; i++)

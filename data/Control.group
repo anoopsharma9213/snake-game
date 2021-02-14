@@ -4,7 +4,28 @@ CIwResGroup
 
 	"Design/Control/key.png"
 	"Design/Control/controls.png"
-	"Design/Control/menu_button.png"
-	"Design/Control/facebook_button.png"
-	"Design/Control/rate.png"
+	"Design/Control/menu_buttons.png"
+	"Design/Control/fb_button.png"
+	"Design/Control/rate_button.png"
+	"Design/Control/level.png"
+	"Design/Control/star.png"
+
+	"Sound/click.wav"
+	"Sound/eat.wav"
+
+	CIwSoundSpec
+	{
+		name		"click"		# The name we want to use to refer to this sound effect in out code
+		data		"click"		# The WAV file name (without .wav
+		vol 		1.0			# Default volume to be played at
+		loop		false		# Do we want this sound effect to play forever?
+	}
+
+	CIwSoundSpec
+	{
+		name		"eat"		# The name we want to use to refer to this sound effect in out code
+		data		"eat"		# The WAV file name (without .wav
+		vol 		1.0			# Default volume to be played at
+		loop		false		# Do we want this sound effect to play forever?
+	}
 }
