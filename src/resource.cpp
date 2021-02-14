@@ -21,7 +21,7 @@ Resources::Resources()
 	bg[6] = Iw2DCreateImageResource("bg6");
 	bg[7] = Iw2DCreateImageResource("bg7");
 	bg[8] = Iw2DCreateImageResource("bg8");
-	//bg[9] = Iw2DCreateImageResource("bg9");
+	
 	menu_bg = Iw2DCreateImageResource("menu_bg");
 	control_bg = Iw2DCreateImageResource("control_bg");
 	select_bg = Iw2DCreateImageResource("select_bg");
@@ -33,6 +33,9 @@ Resources::Resources()
 
 	head = Iw2DCreateImageResource("head");
 	body = Iw2DCreateImageResource("body");
+	tail = Iw2DCreateImageResource("tail");
+	tongue = Iw2DCreateImageResource("tongue");
+	turn = Iw2DCreateImageResource("turn");
 	food = Iw2DCreateImageResource("food");
 	wall = Iw2DCreateImageResource("wall");
 
@@ -41,6 +44,8 @@ Resources::Resources()
 	key = Iw2DCreateImageResource("key");
 	controls = Iw2DCreateImageResource("controls");
 	menu_button = Iw2DCreateImageResource("menu_button");
+	facebook_button = Iw2DCreateImageResource("facebook_button");
+	rate = Iw2DCreateImageResource("rate");
 
 	IwGetResManager()->LoadGroup("Iw2DStrings.group");
 
@@ -71,12 +76,17 @@ Resources::~Resources()
 
 	delete head;
 	delete body;
+	delete tail;
+	delete tongue;
+	delete turn;
 	delete food;
 	delete wall;
 
 	delete key;
 	delete controls;
 	delete menu_button;
+	delete facebook_button;
+	delete rate;
 
 	delete font;
 

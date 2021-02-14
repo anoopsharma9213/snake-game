@@ -20,12 +20,17 @@ private:
 
 	CIw2DImage *head;
 	CIw2DImage *body;
+	CIw2DImage *tail;
+	CIw2DImage *tongue;
+	CIw2DImage *turn;
 	CIw2DImage *food;
 	CIw2DImage *wall;
 
 	CIw2DImage *key;
 	CIw2DImage *controls;
 	CIw2DImage *menu_button;
+	CIw2DImage *facebook_button;
+	CIw2DImage *rate;
 	
 	CIw2DFont *font;
 
@@ -39,12 +44,17 @@ public:
 
 	CIw2DImage *get_head()				{return head;}
 	CIw2DImage *get_body()				{return body;}
+	CIw2DImage *get_tail()				{return tail;}
+	CIw2DImage *get_tongue()			{return tongue;}
+	CIw2DImage *get_turn()				{return turn;}
 	CIw2DImage *get_food()				{return food;}
 	CIw2DImage *get_wall()				{return wall;}
 
 	CIw2DImage *get_key()				{return key;}
 	CIw2DImage *get_controls()			{return controls;}
 	CIw2DImage *get_menu_button()		{return menu_button;}
+	CIw2DImage *get_facebook_button()	{return facebook_button;}
+	CIw2DImage *get_rate()				{return rate;}
 
 	CIw2DFont *get_font()				{return font;}
 

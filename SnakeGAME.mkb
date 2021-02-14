@@ -6,6 +6,9 @@ files
     main.cpp
     game.cpp
 	resource.cpp
+	MainPage.cpp
+	PlayPage.cpp
+	Tutorial.cpp
     (h)
     game.h
 	resource.h
